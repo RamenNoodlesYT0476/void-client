@@ -27,7 +27,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
     static final int[] colors = {0xFFFF375F,0xFFBD78FF,0xFF4BAEFF,0xFFB4BDCD};
     static final String[] names = {"Neon red","Ultraviolet","Electric blue","Steel grey"};
     static int number(String key,int max){try{return Math.floorMod(Integer.parseInt(cfg.getProperty(key,"0")),max);}catch(NumberFormatException e){return 0;}}
-    static int accent(){return colors[number("accent",4)];}
+    static int accent(){return colors[number("accent",colors.length)];}
     static void set(String key,String value){cfg.setProperty(key,value);try{
         Path temp=Files.createTempFile(config.getParent(),"void-", ".tmp");
         try(var out=Files.newOutputStream(temp)){cfg.store(out,"Void Client");}
@@ -44,6 +44,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
     public void onInitializeClient(){
         if(Files.exists(config))try(var in=Files.newInputStream(config)){cfg.load(in);}catch(Exception e){LoggerFactory.getLogger("VoidClient").warn("Could not load settings",e);}
         Combat.register(this);
+        Preferences.register(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
         hud("heading","Direction",c->"Facing  "+c.player.getHorizontalFacing().asString());
         hud("fps","Frame rate",c->"FPS  "+c.getCurrentFps());
@@ -70,22 +71,48 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
             }
         });
         for(var p:FabricLoader.getInstance().getEntrypoints("voidclient",VoidPlugin.class))p.register(this);
-        var key=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.voidclient.open",InputUtil.Type.KEYSYM,GLFW.GLFW_KEY_RIGHT_SHIFT,KeyBinding.Category.create(net.minecraft.util.Identifier.of("voidclient","general"))));
-        ClientTickEvents.END_CLIENT_TICK.register(c->{while(key.wasPressed() && c.player!=null)c.setScreen(new Console());});
-        HudElementRegistry.addLast(net.minecraft.util.Identifier.of("voidclient","hud"),(g,t)->renderHud(g));
+        var category=KeyBinding.Category.create(net.minecraft.util.Identifier.of("voidclient","general"));
+        var key=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.voidclient.open", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_BRACKET, category));
+        var shortcuts=new LinkedHashMap<KeyBinding,Module>();
+        for(var module:modules) if(module.id().startsWith("switch.")){
+            var bind=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.voidclient."+module.id(), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, category));
+            shortcuts.put(bind,module);
+        }
+        ClientTickEvents.END_CLIENT_TICK.register(c->{
+            while(key.wasPressed() && c.player!=null)c.setScreen(new Console());
+            shortcuts.forEach((bind,module)->{
+                while(bind.wasPressed())if(c.player!=null && c.currentScreen==null){
+                    module.action().accept(c);
+                    c.player.sendMessage(Text.literal(module.label()+(switchOn(module.id().substring(7))?" on":" off")),true);
+                }
+            });
+        });        HudElementRegistry.addLast(net.minecraft.util.Identifier.of("voidclient","hud"),(g,t)->renderHud(g));
+    }
+    static int hudCoordinate(String key,int available){
+        return (int)Math.round(Math.max(0,available) * number(key,1001) / 1000.0);
     }
     static void renderHud(DrawContext g){
         var c=MinecraftClient.getInstance();if(c.player==null||c.world==null||c.options.hudHidden||c.getDebugHud().shouldShowDebugHud()||c.currentScreen instanceof Console)return;
         var lines=new ArrayList<String>();for(var m:modules)if(m.hud!=null&&enabled(m)){String s=m.hud.apply(c);if(s!=null&&!s.isBlank())lines.add(s);}
-        if(lines.isEmpty())return;
+        if(lines.isEmpty() || number("hud.hidden", 2) == 1)return;
         int w=lines.stream().mapToInt(c.textRenderer::getWidth).max().orElse(64)+14;
-        int h=18+lines.size()*11, anchor=number("anchor",4);
+        int spacing=11 + 2 * number("hud.spacing", 3);
+        w=Math.min(w,g.getScaledWindowWidth()-12);
+        int h=18+lines.size()*spacing, anchor=number("anchor",4);
         int x=anchor%2==1?g.getScaledWindowWidth()-w-6:6,y=anchor>=2?g.getScaledWindowHeight()-h-28:6;
-        g.fill(x,y,x+w,y+h,0xC2111019);g.fill(x,y,x+2,y+h,accent());
-        g.drawText(c.textRenderer,"VOID / HUD",x+6,y+4,accent(),false);
-        for(int i=0;i<lines.size();i++)g.drawText(c.textRenderer,lines.get(i),x+6,y+17+i*11,0xFFE1E3EF,false);
+        if (Boolean.parseBoolean(cfg.getProperty("hud.custom","false"))) {
+            x = hudCoordinate("hud.x",g.getScaledWindowWidth()-w);
+            y = hudCoordinate("hud.y",g.getScaledWindowHeight()-h);
+        }
+        int opacity = new int[]{0xDC000000, 0xFF000000, 0x80000000}[number("hud.opacity",3)];
+        int ink = number("hud.ink",2)==0 ? 0xFFCCD0D6 : accent();
+        g.fill(x,y,x+w,y+h,opacity);g.fill(x,y,x+2,y+h,ink);
+        g.drawText(c.textRenderer,"VOID / HUD",x+6,y+4,ink,false);
+        for(int i=0;i<lines.size();i++)g.drawText(c.textRenderer,c.textRenderer.trimToWidth(lines.get(i), Math.max(10,g.getScaledWindowWidth()-26)),x+6,y+17+i*spacing,0xFFE1E3EF,false);
     }
 }
+
+
 
 
 

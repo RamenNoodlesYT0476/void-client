@@ -9,10 +9,12 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 final class Console extends Screen {
+    int group=0;
+    final String[] groups={"Combat","Utility","HUD","Access"};
     int tab=0,page=0,offset=0,serial=0; String query="",status="";
     List<Catalog.Hit> hits=List.of(); Catalog.Hit selected; Catalog.Release file;
     TextFieldWidget field; boolean busy;
-    final String[] tabs={"Utilities","Appearance","Modrinth","CurseForge"};
+    final String[] tabs={"Utilities","Settings","Modrinth","CurseForge"};
     int x,y,w,h,body,cols,rows;
     Console(){super(Text.literal("Void Client"));}
     int right(){return x+w-9;}
@@ -24,14 +26,41 @@ final class Console extends Screen {
         rows=Math.max(1,(h-106)/21);cols=w>=355?2:1;
         int tw=(w-18)/4;for(int i=0;i<4;i++){int n=i;button(x+9+i*tw,y+30,tw-2,tabs[i],()->switchTab(n));}
         if(tab==0){
-            int count=VoidClient.modules.size(), capacity=cols*rows;page=Math.min(page,(count-1)/capacity);
-            for(int i=0;i<capacity && page*capacity+i<count;i++){var m=VoidClient.modules.get(page*capacity+i);int bw=(w-18)/cols;
-                button(x+9+(i%cols)*bw,body+(i/cols)*21,bw-3,m.hud()!=null?(VoidClient.enabled(m)?"§a● §r":"§8○ §r")+m.label():m.id().startsWith("switch.")?(VoidClient.switchOn(m.id().substring(7))?"§a● §r":"§8○ §r")+m.label():"› "+m.label(),()->{if(m.hud()!=null)VoidClient.set("module."+m.id(),String.valueOf(!VoidClient.enabled(m)));else if(client.player!=null)m.action().accept(client);refresh();});}
+            int gw=(w-18)/groups.length;
+            for(int i=0;i<groups.length;i++){int id=i;button(x+9+i*gw,body,gw-2,(group==i?"› ":"")+groups[i],()->{group=id;page=0;refresh();});}
+            var entries=Preferences.group(group);
+            int count=entries.size(), capacity=cols*Math.max(1,rows-1);page=Math.min(page,(count-1)/capacity);
+            for(int i=0;i<capacity && page*capacity+i<count;i++){var m=entries.get(page*capacity+i);int bw=(w-18)/cols;
+                button(x+9+(i%cols)*bw,body+22+(i/cols)*21,bw-3,m.hud()!=null?(VoidClient.enabled(m)?"§a● §r":"§8○ §r")+m.label():m.id().startsWith("switch.")?(VoidClient.switchOn(m.id().substring(7))?"§a● §r":"§8○ §r")+m.label():"› "+m.label(),()->{if(m.hud()!=null)VoidClient.set("module."+m.id(),String.valueOf(!VoidClient.enabled(m)));else if(client.player!=null)m.action().accept(client);refresh();});}
             pager(count,capacity);
         }else if(tab==1){
-            button(x+9,body,w-18,"Accent   /   "+VoidClient.names[VoidClient.number("accent",4)],()->cycle("accent"));
-            button(x+9,body+22,w-18,"HUD corner   /   "+new String[]{"Top left","Top right","Bottom left","Bottom right"}[VoidClient.number("anchor",4)],()->cycle("anchor"));
-        }else if(selected!=null){
+            String[][] controls={
+                {"accent","Menu accent","Neon red","Purple","Blue","Grey"},
+                {"anchor","HUD corner","Top left","Top right","Bottom left","Bottom right"},
+                {"position","Place HUD","Click to position"},
+                {"hud.hidden","HUD","Visible","Hidden"},
+                {"hud.ink","HUD trim","Grey","Menu accent"},
+                {"hud.opacity","Panel","Dark","Solid black","Translucent"},
+                {"hud.spacing","Row spacing","Compact","Normal","Wide"},
+                {"combat.range","Attack range","2 blocks","2.5 blocks","3 blocks"},
+                {"combat.weapon","Kill Aura weapon","Swords","Any"},
+                {"combat.cooldown","Attack cooldown","95%","85%","75%"},
+                {"crystal.mode","Crystal Aura","Place + break","Place","Break"},
+                {"crystal.delay","Crystal delay","2 ticks","4 ticks","6 ticks","8 ticks"},
+                {"alerts.health","Health alert","2 hearts","3 hearts","4 hearts","5 hearts"},
+                {"alerts.sound","Alert sound","On","Off"}
+            };
+            int capacity=cols*rows;
+            for(int i=0;i<capacity && page*capacity+i<controls.length;i++){
+                String[] setting=controls[page*capacity+i];int count=setting.length-2;
+                int bw=(w-18)/cols;
+                button(x+9+(i%cols)*bw,body+(i/cols)*21,bw-3,
+                    setting[1]+" / "+setting[2+VoidClient.number(setting[0],count)],
+                    ()->{if(setting[0].equals("position")){client.setScreen(new HudPosition(this));return;}
+                        if(setting[0].equals("anchor"))VoidClient.set("hud.custom","false");
+                        Preferences.cycle(setting[0],count);refresh();});
+            }
+            pager(controls.length,capacity);        }else if(selected!=null){
             button(x+9,body+20,(w-22)/2,"Project & dependencies ↗",()->Util.getOperatingSystem().open(selected.page()));
             button(x+11+(w-22)/2,body+20,(w-22)/2,"Back to results",()->{serial++;busy=false;selected=null;file=null;status="";refresh();});
             if(file!=null&&!busy)button(x+9,body+43,w-18,"Install verified JAR on restart",()->{var chosen=file;file=null;job(()->{Catalog.install(chosen);return "Installed. Restart Minecraft to load.";},s->status=s);});
@@ -61,7 +90,7 @@ final class Console extends Screen {
         int tw=(w-18)/4;g.fill(x+9+tab*tw,y+49,x+7+(tab+1)*tw,y+51,accent);
         g.drawText(textRenderer,"V O I D   /   CLIENT",x+9,y+10,accent,false);
         g.drawText(textRenderer,"FABRIC · 1.21.11",right()-textRenderer.getWidth("FABRIC · 1.21.11"),y+10,0xFF94A4BD,false);
-        String label=tab==0?"01   /   MODULE LIBRARY":tab==1?"02   /   INTERFACE":tab==2?"03   /   MODRINTH":"04   /   CURSEFORGE";
+        String label=tab==0?"MODULES":tab==1?"02   /   INTERFACE":tab==2?"03   /   MODRINTH":"04   /   CURSEFORGE";
         g.drawText(textRenderer,label,x+9,y+56,0xFFC1B3CE,false);
         if(selected!=null)g.drawText(textRenderer,textRenderer.trimToWidth(file==null?selected.title():file.name(),w-18),x+9,body+4,0xFFEAE4F2,false);
         String note=status.isBlank()?(tab==0?"Click to toggle or run":tab==1?"Preferences save automatically":"Fabric 1.21.11 • stable releases"):status;
@@ -70,5 +99,7 @@ final class Console extends Screen {
         super.render(g,mx,my,dt);
     }
 }
+
+
 
 

@@ -6,7 +6,7 @@ Extract the Windows x64 ZIP and run **Void Setup.exe**. The installer opens the 
 
 Choose **New instance**, give it a name, and select it. New instances start with an empty mods folder. Choose **Install Void utilities** to add the utility console and Fabric API to the selected instance. **Launcher settings** controls maximum game memory and whether the launcher remembers your last instance. Each instance has its own mods, worlds, settings, screenshots, and logs. **Browse mods** searches Modrinth or CurseForge before the game starts. Select a project and review the compatible file and dependency count before installing it. **Add JARs** imports local Fabric mods into the selection. Select an imported mod and use **Enable / disable** to change whether it loads on the next launch. Use Fabric 1.21.11 builds and install their dependencies. The in-game Modrinth and CurseForge menus install into the running instance.
 
-In the default setup, **Sign in with Prism** opens Prism, where you can choose **Settings → Accounts → Add Microsoft**. **Play instance** then launches using the account selected in Prism. If you configure a Void application ID, choose **Sign in with Microsoft** to sign in through your browser. Choose an instance and **Play** to launch it directly. The first launch downloads Java and the Minecraft assets and libraries to a shared cache. Right Shift opens the utility console in a world. Microsoft account also lets you sign out. Void protects the saved refresh token with Windows DPAPI for the current Windows user.
+In the default setup, **Sign in with Prism** opens Prism, where you can choose **Settings → Accounts → Add Microsoft**. **Play instance** then launches using the account selected in Prism. If you configure a Void application ID, choose **Sign in with Microsoft** to sign in through your browser. Choose an instance and **Play** to launch it directly. The first launch downloads Java and the Minecraft assets and libraries to a shared cache. Right bracket (]) opens the utility console in a world. Microsoft account also lets you sign out. Void protects the saved refresh token with Windows DPAPI for the current Windows user.
 
 ### Launch with Prism
 Select a Void instance and choose **Launch with Prism** to use your Prism Minecraft account. This mode requires [Prism Launcher for Windows](https://prismlauncher.org/download/windows/). From the repository root, install the dependency with `winget import -i desktop/prism-dependency.json`. Open Prism once and add your Microsoft account in its account settings.
@@ -35,3 +35,9 @@ Build the Windows launcher and its embedded runtime with desktop/build-desktop.p
 The installed launcher, instances, and shared game cache live in %LOCALAPPDATA%\Void Client. Back up any worlds you want to keep before removing an instance. The launcher shortcut is in Start Menu\Programs\Void Client.
 
 
+
+## Native PvP and accessibility controls
+
+Press **]** in a world to open Void. Combat includes Kill Aura, Crystal Aura and Auto Totem. Kill Aura defaults to swords and respects attack cooldown. Crystal Aura places on the obsidian or bedrock block under the crosshair and breaks nearby crystals. Settings control range, weapon, cooldown, crystal mode and delay. Module keybinds are individually assignable under Controls → Key Binds → Void Client.
+
+Use **Utilities → Access** for low-health and low-durability alerts. Use **Settings** to configure alert sound, the health threshold, HUD placement, text spacing, opacity and trim. Each instance stores these choices in config/void-client.properties. The Void JAR runs independently of Meteor.

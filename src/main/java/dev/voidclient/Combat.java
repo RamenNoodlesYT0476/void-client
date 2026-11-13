@@ -20,13 +20,9 @@ final class Combat {
     private static PlayerEntity lastPlayer;
 
     static void register(VoidClient registry) {
-        toggle(registry, "sword", "Sword aura");
+        toggle(registry, "sword", "Kill Aura");
         toggle(registry, "crystal", "Crystal aura");
         toggle(registry, "totem", "Auto totem");
-        registry.action("combat.range", "Cycle combat range", client -> {
-            VoidClient.set("combat.range", Integer.toString((VoidClient.number("combat.range", 3) + 1) % 3));
-            client.player.sendMessage(net.minecraft.text.Text.literal("Void combat range: " + range() + " blocks"), true);
-        });
         ClientTickEvents.END_CLIENT_TICK.register(Combat::tick);
     }
 
@@ -58,27 +54,28 @@ final class Combat {
             }
         }
         if (player.isUsingItem()) return;
+        if (!VoidClient.switchOn("sword") && !VoidClient.switchOn("crystal")) return;
         double reach = Math.min(range(), player.getEntityInteractionRange());
         var target = client.world.getPlayers().stream().filter(other -> other != player && other.isAlive() &&
             !other.isSpectator() && !other.isCreative() && !player.isTeammate(other) &&
             player.squaredDistanceTo(other) <= 36 && player.canSee(other))
             .min(Comparator.comparingDouble(other -> player.squaredDistanceTo(other))).orElse(null);
         if (target == null) return;
-        if (VoidClient.switchOn("sword") && player.getMainHandStack().isIn(ItemTags.SWORDS) &&
-            player.squaredDistanceTo(target) <= reach * reach && player.getAttackCooldownProgress(0) >= 0.95f) {
+        if (VoidClient.switchOn("sword") && (VoidClient.number("combat.weapon", 2) == 1 || player.getMainHandStack().isIn(ItemTags.SWORDS)) &&
+            player.squaredDistanceTo(target) <= reach * reach && player.getAttackCooldownProgress(0) >= (0.95f - 0.1f * VoidClient.number("combat.cooldown", 3))) {
             attack(client, target);
             return;
         }
         Hand hand = player.getMainHandStack().isOf(Items.END_CRYSTAL) ? Hand.MAIN_HAND :
             player.getOffHandStack().isOf(Items.END_CRYSTAL) ? Hand.OFF_HAND : null;
-        if (!VoidClient.switchOn("crystal") || hand == null || player.age < nextCrystalTick) return;
+        if (!VoidClient.switchOn("crystal") || player.age < nextCrystalTick) return;
         var nearby = client.world.getEntitiesByClass(EndCrystalEntity.class, player.getBoundingBox().expand(reach),
             crystal -> player.squaredDistanceTo(crystal) <= reach * reach && player.canSee(crystal) &&
                 target.squaredDistanceTo(crystal) < player.squaredDistanceTo(crystal));
-        if (!nearby.isEmpty()) {
+        if (!nearby.isEmpty() && VoidClient.number("crystal.mode", 3) != 1) {
             attack(client, nearby.stream().min(Comparator.comparingDouble(crystal -> target.squaredDistanceTo(crystal))).orElseThrow());
-            nextCrystalTick = player.age + 4;
-        } else if (client.crosshairTarget instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK) {
+            nextCrystalTick = player.age + 2 + 2 * VoidClient.number("crystal.delay", 4);
+        } else if (hand != null && VoidClient.number("crystal.mode", 3) != 2 && client.crosshairTarget instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK) {
             var pos = hit.getBlockPos();
             var state = client.world.getBlockState(pos);
             var center = net.minecraft.util.math.Vec3d.ofBottomCenter(pos.up());
@@ -86,7 +83,7 @@ final class Combat {
                 target.squaredDistanceTo(center) < player.squaredDistanceTo(center) &&
                 client.world.getOtherEntities(null, new Box(pos.up()).stretch(0, 1, 0)).isEmpty()) {
                 if (client.interactionManager.interactBlock(player, hand, hit).isAccepted()) player.swingHand(hand);
-                nextCrystalTick = player.age + 4;
+                nextCrystalTick = player.age + 2 + 2 * VoidClient.number("crystal.delay", 4);
             }
         }
     }
@@ -96,3 +93,4 @@ final class Combat {
         client.player.swingHand(Hand.MAIN_HAND);
     }
 }
+
