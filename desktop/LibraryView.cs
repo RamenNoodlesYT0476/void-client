@@ -64,6 +64,7 @@ partial class Desktop {
         var detail=Column();detail.BackColor=ColorOf("#1b1922");detail.Padding=new Padding(12);
         panes.Controls.Add(library,0,0);panes.Controls.Add(detail,1,0);
         Row(library,Heading("Instances",14,"#c49aff"));StyleList(instances);Row(library,instances,true);
+        Row(library,Bar(Command("Launch with Prism",delegate{RunWorker("prism");},"#5a4078")));
         Row(library,Bar(Command("New instance",NewInstance,"#5a4078"),Command("Open folder",delegate{
             if(Active!=null)Process.Start("explorer.exe","\""+Active+"\"");},"#383640")));
         selectedTitle.Font=new Font("Segoe UI",15,FontStyle.Bold);selectedTitle.AutoEllipsis=true;selectedTitle.Dock=DockStyle.Fill;selectedTitle.Height=32;selectedTitle.Text="Select an instance";
@@ -80,8 +81,7 @@ partial class Desktop {
         footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         footer.Controls.Add(Command("Sign in with Microsoft",AccountClick,"#344e78",signIn),0,0);
         account.Dock=DockStyle.Fill;account.TextAlign=ContentAlignment.MiddleLeft;account.AutoEllipsis=true;footer.Controls.Add(account,1,0);
-        footer.Controls.Add(Bar(Command("Launch with Prism",delegate{RunWorker("prism");},"#5a4078"),
-            Command("Play instance",delegate{RunWorker("play");},"#ac254c")),2,0);
+        footer.Controls.Add(Command("Play instance",delegate{RunWorker("play");},"#ac254c"),2,0);
         Row(outer,footer);status.Dock=DockStyle.Fill;status.MinimumSize=new Size(0,38);status.ForeColor=ColorOf("#b7b4c7");Row(outer,status);
     }
     void ToggleFullScreen(){
