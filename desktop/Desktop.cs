@@ -178,7 +178,7 @@ partial class Desktop : Form {
     static string ClientId(){return Environment.GetEnvironmentVariable("VOID_MICROSOFT_CLIENT_ID")??(File.Exists(ClientFile)?File.ReadAllText(ClientFile).Trim():"");}
     void Configure(){var value=Prompt("Microsoft application","Void's approved public application ID (desktop redirect http://localhost)",ClientId());if(value==null)return;
         Guid id;if(!Guid.TryParse(value,out id))throw new IOException("Enter a Microsoft application ID (GUID).");
-        File.WriteAllText(ClientFile,id.ToString());status.Text="Application ID saved.";}
+        File.WriteAllText(ClientFile,id.ToString());ShowAccount();status.Text="Application ID saved.";}
     static Dictionary<string,object> ReadSession(){
         if(!File.Exists(SessionFile))return null;
         var raw=ProtectedData.Unprotect(File.ReadAllBytes(SessionFile),null,DataProtectionScope.CurrentUser);
@@ -189,19 +189,32 @@ partial class Desktop : Form {
         var tmp=SessionFile+"."+Guid.NewGuid().ToString("N");File.WriteAllBytes(tmp,bytes);
         if(File.Exists(SessionFile))File.Replace(tmp,SessionFile,null);else File.Move(tmp,SessionFile);
     }
-    void ShowAccount(){var s=ReadSession();signIn.Text=s==null?"Sign in with Microsoft":"Sign out";account.Text=s==null?"Signed out":s["name"].ToString();}
+    static bool UsesPrism(){Guid id;return !Guid.TryParse(ClientId(),out id);}
+    void ShowAccount(){
+        if(UsesPrism()){
+            signIn.Text="Sign in with Prism";
+            account.Text="Account managed in Prism";
+            return;
+        }
+        var s=ReadSession();signIn.Text=s==null?"Sign in with Microsoft":"Sign out";account.Text=s==null?"Signed out":s["name"].ToString();
+    }
     void AccountClick(){
+        if(UsesPrism()){
+            if(!LocatePrism())return;
+            Process.Start(new ProcessStartInfo(prefs.PrismExe,"--dir \""+prefs.PrismRoot+"\" --show-window"){UseShellExecute=false});
+            status.Text="In Prism, open Settings > Accounts > Add Microsoft. Return here and choose Play instance.";
+            return;
+        }
         if(File.Exists(SessionFile)){if(MessageBox.Show("Sign out of this launcher?","Microsoft account",MessageBoxButtons.YesNo)==DialogResult.Yes){File.Delete(SessionFile);ShowAccount();}return;}
         RunWorker("signin");
     }
-    Dictionary<string,object> PrismRequest(){
-        if(Active==null){status.Text="Select an instance to play.";return null;}
+    bool LocatePrism(){
         var exe=new[]{prefs.PrismExe,
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","PrismLauncher","prismlauncher.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"PrismLauncher","prismlauncher.exe")}.FirstOrDefault(File.Exists);
         if(exe==null){
             using(var picker=new OpenFileDialog{Title="Select Prism Launcher (install PrismLauncher.PrismLauncher with winget if needed)",Filter="Prism Launcher|prismlauncher.exe"}){
-                if(picker.ShowDialog(this)!=DialogResult.OK)return null;
+                if(picker.ShowDialog(this)!=DialogResult.OK)return false;
                 exe=picker.FileName;
             }
         }
@@ -210,15 +223,21 @@ partial class Desktop : Form {
             .FirstOrDefault(p=>!String.IsNullOrEmpty(p)&&File.Exists(Path.Combine(p,"prismlauncher.cfg")));
         if(root==null){
             using(var picker=new OpenFileDialog{Title="Choose your Prism data folder's configuration file",Filter="Prism settings|prismlauncher.cfg"}){
-                if(picker.ShowDialog(this)!=DialogResult.OK)return null;
+                if(picker.ShowDialog(this)!=DialogResult.OK)return false;
                 root=Path.GetDirectoryName(picker.FileName);
             }
         }
         prefs.PrismExe=exe;prefs.PrismRoot=root;SavePrefs();
-        return new Dictionary<string,object>{{"mode","prism"},{"prismExe",exe},{"prismRoot",root},{"instance",Active},{"name",instances.SelectedItem.ToString()}};
+        return true;
+    }
+    Dictionary<string,object> PrismRequest(){
+        if(Active==null){status.Text="Select an instance to play.";return null;}
+        if(!LocatePrism())return null;
+        return new Dictionary<string,object>{{"mode","prism"},{"prismExe",prefs.PrismExe},{"prismRoot",prefs.PrismRoot},{"instance",Active},{"name",instances.SelectedItem.ToString()}};
     }
     async void RunWorker(string mode){
         if(working)return;
+        if(mode=="play" && UsesPrism())mode="prism";
         try{
             Guid id=Guid.Empty;
             Dictionary<string,object> request;
