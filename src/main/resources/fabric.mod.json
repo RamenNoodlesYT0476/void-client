@@ -15,6 +15,8 @@
     "fabric-api": "*",
     "minecraft": "1.21.11",
     "java": ">=21"
-  }
+  },
+  "mixins": [
+    "void-anchor.mixins.json"
+  ]
 }
-

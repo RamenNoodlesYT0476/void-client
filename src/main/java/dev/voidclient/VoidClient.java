@@ -34,7 +34,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         try(var out=Files.newOutputStream(temp)){cfg.store(out,"Void Client");}
         Files.move(temp,config,StandardCopyOption.REPLACE_EXISTING);
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
     static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
     private void add(Module m){if(modules.stream().anyMatch(x->x.id.equals(m.id)))throw new IllegalArgumentException("Duplicate module "+m.id);modules.add(m);}
     public void hud(String id,String name,Function<MinecraftClient,String> f){add(new Module(id,name,f,null));}
@@ -47,6 +47,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         Combat.register(this);
         FieldUtilities.register(this);
         SurvivalKit.register(this);
+        AnchorSync.register(this);
         Preferences.register(this);
         ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
@@ -77,7 +78,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         var category=KeyBinding.Category.create(net.minecraft.util.Identifier.of("voidclient","general"));
         var key=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.voidclient.open", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_BRACKET, category));
         var shortcuts=new LinkedHashMap<KeyBinding,Module>();
-        for(var module:modules) if(module.id().startsWith("switch.")){
+        for(var module:modules) if(module.id().startsWith("switch.") || module.id().equals("anchorCycle")){
             var bind=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.voidclient."+module.id(), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, category));
             shortcuts.put(bind,module);
         }
@@ -86,6 +87,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
             shortcuts.forEach((bind,module)->{
                 while(bind.wasPressed())if(c.player!=null && c.currentScreen==null){
                     module.action().accept(c);
+                    if (!module.id().startsWith("switch.")) continue;
                     c.player.sendMessage(Text.literal(module.label()+(switchOn(module.id().substring(7))?" on":" off")),true);
                 }
             });

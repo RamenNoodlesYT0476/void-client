@@ -27,5 +27,6 @@
   "key.voidclient.switch.surround": "Toggle Surround Once",
   "key.voidclient.switch.armor": "Toggle Auto Armor",
   "key.voidclient.switch.mend": "Toggle Auto Mend",
-  "key.voidclient.switch.holeRadar": "Toggle Hole Radar"
+  "key.voidclient.switch.holeRadar": "Toggle Hole Radar",
+  "key.voidclient.anchorCycle": "Run Anchor Sync"
 }

@@ -63,6 +63,7 @@ final class Console extends Screen {
                 {"crystal.buffer","Aura minimum self-distance","2 blocks","2.5 blocks","3 blocks","3.5 blocks","4 blocks"},
                 {"crystal.warningRadius","Crystal warning radius","4 blocks","6 blocks","8 blocks","10 blocks"},
                 {"survival.totems","Warn at remaining totems","0","1","2","3"},
+                {"anchor.timeout","Anchor Sync timeout","1 second","2 seconds","3 seconds","4 seconds"},
                 {"surround.delay","Surround placement delay","2 ticks","4 ticks","6 ticks","8 ticks"},
                 {"hole.range","Hole radar range","3 blocks","4 blocks","5 blocks","6 blocks"},
                 {"armor.replace","Replace armor at","Empty only","5%","10%","15%"},

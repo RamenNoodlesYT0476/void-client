@@ -57,7 +57,7 @@ def apply_pending_update(instance):
     import hashlib
     mods = Path(instance) / "mods"
     pending = mods / "void-client-1.1.0+26.3.installing"
-    if pending.is_file() and hashlib.sha256(pending.read_bytes()).hexdigest() == "7013070b85a22847749e9cb714d17bcc9acc5a8fa3ac3c6d587ed41b91ccadda":
+    if pending.is_file() and hashlib.sha256(pending.read_bytes()).hexdigest() in {"7013070b85a22847749e9cb714d17bcc9acc5a8fa3ac3c6d587ed41b91ccadda", "cc8ccf6582b80583d07c8c3c3cb165a5f2392b96be53734af8c8f8e2c9cc2bb6"}:
         try:
             pending.replace(mods / "void-client-1.1.0+26.3.jar")
         except PermissionError:

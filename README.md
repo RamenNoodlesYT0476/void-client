@@ -50,3 +50,6 @@ Open **Settings → HUD layout** to move the readouts and utility icons independ
 Under **Utilities → Combat**, Surround attempts one ring of obsidian from the hotbar. Hole ESP displays nearby single-block holes on a north-up radar at your feet’s elevation. Blue means all bedrock. Purple means the walls or floor include obsidian. Auto Armor equips a spare from inventory. Auto Mend throws held experience bottles when you look down and equipped Mending armor is below the configured threshold.
 
 Under **Utilities → HUD**, Crystal damage preview estimates blast damage in HP for you and the nearest eligible player to the blast when aiming at a crystal or its base. Inventory space and Block light at feet provide compact survival readouts. **Utilities → Utility → Select torches** selects a torch stack from your hotbar.
+
+
+**Anchor Sync** runs one charge-and-detonate cycle on the anchor under your crosshair. Bind **Run Anchor Sync** in Minecraft Controls, put glowstone and a non-glowstone item or empty slot on your hotbar, and keep aiming until detonation. The cycle restores the selected slot after each use. In dimensions where anchors set spawn it leaves them alone. In **Settings**, the timeout controls how long Void waits for a server update. **Utilities → HUD → Anchor charges** shows the current charge count.

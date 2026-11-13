@@ -70,7 +70,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
 
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
 
     static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
 
@@ -93,6 +93,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         Combat.register(this);
         FieldUtilities.register(this);
         SurvivalKit.register(this);
+        AnchorSync.register(this);
 
 
         Preferences.register(this);
@@ -155,7 +156,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
         var shortcuts=new LinkedHashMap<KeyMapping,Module>();
 
-        for(var module:modules) if(module.id().startsWith("switch.")){
+        for(var module:modules) if(module.id().startsWith("switch.") || module.id().equals("anchorCycle")){
 
             var bind=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.voidclient."+module.id(), InputConstants.UNKNOWN.getValue(), category));
 
@@ -172,6 +173,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
                 while(bind.consumeClick())if(c.player!=null && c.gui.screen()==null){
 
                     module.action().accept(c);
+                    if (!module.id().startsWith("switch.")) continue;
 
                     c.player.sendOverlayMessage(Component.literal(module.label()+(switchOn(module.id().substring(7))?" on":" off")));
 
