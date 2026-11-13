@@ -28,7 +28,8 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
     static final String[] names = {"Neon red","Ultraviolet","Electric blue","Steel grey"};
     static int number(String key,int max){try{return Math.floorMod(Integer.parseInt(cfg.getProperty(key,"0")),max);}catch(NumberFormatException e){return 0;}}
     static int accent(){return colors[number("accent",colors.length)];}
-    static void set(String key,String value){cfg.setProperty(key,value);try{
+    static void set(String key,String value){cfg.setProperty(key,value);save();}
+    static void save(){try{
         Path temp=Files.createTempFile(config.getParent(),"void-", ".tmp");
         try(var out=Files.newOutputStream(temp)){cfg.store(out,"Void Client");}
         Files.move(temp,config,StandardCopyOption.REPLACE_EXISTING);
@@ -45,11 +46,10 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         if(Files.exists(config))try(var in=Files.newInputStream(config)){cfg.load(in);}catch(Exception e){LoggerFactory.getLogger("VoidClient").warn("Could not load settings",e);}
         Combat.register(this);
         Preferences.register(this);
+        ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
         hud("heading","Direction",c->"Facing  "+c.player.getHorizontalFacing().asString());
         hud("fps","Frame rate",c->"FPS  "+c.getCurrentFps());
-        hud("clock","World clock",c->{long t=(c.world.getTimeOfDay()+6000)%24000;return String.format(Locale.ROOT,"Time  %02d:%02d",t/1000,(t%1000)*60/1000);});
-        hud("biome","Biome",c->"Biome  "+c.world.getBiome(c.player.getBlockPos()).getKey().map(k->k.getValue().getPath()).orElse("?"));
         hud("gear","Tool durability",c->{var s=c.player.getMainHandStack();return s.isDamageable()?"Tool  "+(s.getMaxDamage()-s.getDamage())+" / "+s.getMaxDamage():null;});
         hud("portal","Portal coordinates",c->{var d=c.world.getRegistryKey();if(d!=World.OVERWORLD && d!=World.NETHER)return null;double f=d==World.NETHER?8:0.125;return (f==8?"Overworld":"Nether")+"  "+(int)Math.floor(c.player.getX()*f)+" / "+(int)Math.floor(c.player.getZ()*f);});
         hud("waypoint","Saved waypoint",c->{var v=cfg.getProperty(scope(c));return v==null?null:"Mark  "+v;});
@@ -94,25 +94,26 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
     static void renderHud(DrawContext g){
         var c=MinecraftClient.getInstance();if(c.player==null||c.world==null||c.options.hudHidden||c.getDebugHud().shouldShowDebugHud()||c.currentScreen instanceof Console)return;
         var lines=new ArrayList<String>();for(var m:modules)if(m.hud!=null&&enabled(m)){String s=m.hud.apply(c);if(s!=null&&!s.isBlank())lines.add(s);}
-        if(lines.isEmpty() || number("hud.hidden", 2) == 1)return;
-        int w=lines.stream().mapToInt(c.textRenderer::getWidth).max().orElse(64)+14;
-        int spacing=11 + 2 * number("hud.spacing", 3);
-        w=Math.min(w,g.getScaledWindowWidth()-12);
-        int h=18+lines.size()*spacing, anchor=number("anchor",4);
-        int x=anchor%2==1?g.getScaledWindowWidth()-w-6:6,y=anchor>=2?g.getScaledWindowHeight()-h-28:6;
-        if (Boolean.parseBoolean(cfg.getProperty("hud.custom","false"))) {
-            x = hudCoordinate("hud.x",g.getScaledWindowWidth()-w);
-            y = hudCoordinate("hud.y",g.getScaledWindowHeight()-h);
+        var icons = modules.stream().filter(m -> m.id().startsWith("switch.") && switchOn(m.id().substring(7))).toList();
+        if ((lines.isEmpty() && icons.isEmpty()) || number("hud.hidden",2)==1) return;
+        int spacing=9+number("hud.spacing",3);
+        float scale=0.8f;
+        int width=(int)(g.getScaledWindowWidth()/scale),height=(int)(g.getScaledWindowHeight()/scale);
+        int w=Math.min(width-8,Math.max(lines.stream().mapToInt(c.textRenderer::getWidth).max().orElse(0),icons.size()*16)+4);
+        int h=lines.size()*spacing+(icons.isEmpty()?0:16)+2;
+        int anchor=number("anchor",4);
+        int x=anchor%2==1?width-w-4:4, y=anchor>=2?height-h-28:4;
+        if(Boolean.parseBoolean(cfg.getProperty("hud.custom","false"))){
+            x=hudCoordinate("hud.x",width-w);y=hudCoordinate("hud.y",height-h);
         }
-        int opacity = new int[]{0xDC000000, 0xFF000000, 0x80000000}[number("hud.opacity",3)];
-        int ink = number("hud.ink",2)==0 ? 0xFFCCD0D6 : accent();
-        g.fill(x,y,x+w,y+h,opacity);g.fill(x,y,x+2,y+h,ink);
-        g.drawText(c.textRenderer,"VOID / HUD",x+6,y+4,ink,false);
-        for(int i=0;i<lines.size();i++)g.drawText(c.textRenderer,c.textRenderer.trimToWidth(lines.get(i), Math.max(10,g.getScaledWindowWidth()-26)),x+6,y+17+i*spacing,0xFFE1E3EF,false);
+        g.getMatrices().pushMatrix();
+        try {
+            g.getMatrices().scale(scale,scale);
+            int alpha=number("hud.tint",3)*24;
+            if(alpha>0)g.fill(x,y,x+w,y+h,alpha<<24);
+            int ink=number("hud.ink",2)==0?0xFFE1E3EF:accent();
+            for(int i=0;i<lines.size();i++)g.drawTextWithShadow(c.textRenderer,c.textRenderer.trimToWidth(lines.get(i),w-4),x+2,y+1+i*spacing,ink);
+            for(int i=0;i<icons.size();i++)g.drawItem(ModuleIcons.item(icons.get(i).id()).getDefaultStack(),x+i*16,y+1+lines.size()*spacing);
+        } finally { g.getMatrices().popMatrix(); }
     }
 }
-
-
-
-
-

@@ -19,9 +19,12 @@ final class Console extends Screen {
     Console(){super(Text.literal("Void Client"));}
     int right(){return x+w-9;}
     void button(int bx,int by,int bw,String label,Runnable fn){addDrawableChild(ButtonWidget.builder(Text.literal(label),b->fn.run()).dimensions(bx,by,bw,18).build());}
+    record Tile(ButtonWidget button,VoidClient.Module module){}
+    final List<Tile> tiles=new ArrayList<>();
     void refresh(){clearChildren();init();}
     void switchTab(int i){serial++;tab=i;page=offset=0;selected=null;file=null;busy=false;query=status="";hits=List.of();refresh();if(tab>=2)search();}
     @Override protected void init(){
+        tiles.clear();
         w=Math.min(width-10,490);h=Math.min(height-8,308);x=(width-w)/2;y=(height-h)/2;body=y+68;
         rows=Math.max(1,(h-106)/21);cols=w>=355?2:1;
         int tw=(w-18)/4;for(int i=0;i<4;i++){int n=i;button(x+9+i*tw,y+30,tw-2,tabs[i],()->switchTab(n));}
@@ -29,18 +32,28 @@ final class Console extends Screen {
             int gw=(w-18)/groups.length;
             for(int i=0;i<groups.length;i++){int id=i;button(x+9+i*gw,body,gw-2,(group==i?"› ":"")+groups[i],()->{group=id;page=0;refresh();});}
             var entries=Preferences.group(group);
-            int count=entries.size(), capacity=cols*Math.max(1,rows-1);page=Math.min(page,(count-1)/capacity);
-            for(int i=0;i<capacity && page*capacity+i<count;i++){var m=entries.get(page*capacity+i);int bw=(w-18)/cols;
-                button(x+9+(i%cols)*bw,body+22+(i/cols)*21,bw-3,m.hud()!=null?(VoidClient.enabled(m)?"§a● §r":"§8○ §r")+m.label():m.id().startsWith("switch.")?(VoidClient.switchOn(m.id().substring(7))?"§a● §r":"§8○ §r")+m.label():"› "+m.label(),()->{if(m.hud()!=null)VoidClient.set("module."+m.id(),String.valueOf(!VoidClient.enabled(m)));else if(client.player!=null)m.action().accept(client);refresh();});}
-            pager(count,capacity);
+            int across=Math.max(1,(w-18)/28),capacity=across*Math.max(1,(h-127)/25),count=entries.size();
+            page=Math.max(0,Math.min(page,(count-1)/capacity));
+            for(int i=0;i<capacity && page*capacity+i<count;i++){
+                var m=entries.get(page*capacity+i);
+                int bx=x+9+i%across*28,by=body+22+i/across*25;
+                var tile=ButtonWidget.builder(Text.literal(m.label()),button->{
+                    if(m.hud()!=null)VoidClient.set("module."+m.id(),String.valueOf(!VoidClient.enabled(m)));
+                    else if(client.player!=null)m.action().accept(client);
+                    refresh();
+                }).dimensions(bx,by,25,22).build();
+                tile.setTooltip(net.minecraft.client.gui.tooltip.Tooltip.of(Text.literal(m.label())));
+                addDrawableChild(tile);
+                tiles.add(new Tile(tile,m));
+            }            pager(count,capacity);
         }else if(tab==1){
             String[][] controls={
                 {"accent","Menu accent","Neon red","Purple","Blue","Grey"},
                 {"anchor","HUD corner","Top left","Top right","Bottom left","Bottom right"},
                 {"position","Place HUD","Click to position"},
                 {"hud.hidden","HUD","Visible","Hidden"},
-                {"hud.ink","HUD trim","Grey","Menu accent"},
-                {"hud.opacity","Panel","Dark","Solid black","Translucent"},
+                {"hud.ink","HUD text","Grey","Menu accent"},
+                {"hud.tint","Panel tint","Clear","9%","19%"},
                 {"hud.spacing","Row spacing","Compact","Normal","Wide"},
                 {"combat.range","Attack range","2 blocks","2.5 blocks","3 blocks"},
                 {"combat.weapon","Kill Aura weapon","Swords","Any"},
@@ -97,8 +110,16 @@ final class Console extends Screen {
         var lines=textRenderer.wrapLines(Text.literal(note),Math.max(80,w-124));int top=y+h-17-(Math.min(2,lines.size())-1)*9;
         for(int i=0;i<Math.min(2,lines.size());i++)g.drawText(textRenderer,lines.get(i),x+61,top+i*9,0xFFABB8CD,false);
         super.render(g,mx,my,dt);
+        for(var tile:tiles){
+            var btn=tile.button();var m=tile.module();int bx=btn.getX(),by=btn.getY();
+            boolean active=m.hud()!=null?VoidClient.enabled(m):m.id().startsWith("switch.")&&VoidClient.switchOn(m.id().substring(7));
+            g.fill(bx+1,by+1,bx+24,by+21,btn.isHovered()||btn.isFocused()?0xFF45414B:0xFF232228);
+            g.drawItem(ModuleIcons.item(m.id()).getDefaultStack(),bx+4,by+2);
+            if(active)g.fill(bx+3,by+18,bx+22,by+20,accent);
+        }
     }
 }
+
 
 
 

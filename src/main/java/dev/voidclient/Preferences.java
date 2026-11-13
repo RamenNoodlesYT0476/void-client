@@ -37,12 +37,6 @@ final class Preferences {
     static void register(VoidClient registry) {
         toggle(registry, "lowHealth", "Low health alert");
         toggle(registry, "durabilityAlert", "Low durability alert");
-        registry.hud("health", "Health", client -> "Health  " + Math.ceil(client.player.getHealth()) + " / " + (int) client.player.getMaxHealth());
-        registry.hud("active", "Active modules", client -> {
-            var active = VoidClient.modules.stream().filter(m -> m.id().startsWith("switch.") &&
-                VoidClient.switchOn(m.id().substring(7))).map(VoidClient.Module::label).toList();
-            return active.isEmpty() ? null : "On  " + String.join(", ", active);
-        });
         ClientTickEvents.END_CLIENT_TICK.register(new Alerts()::tick);
     }
 
@@ -74,3 +68,4 @@ final class Preferences {
         }
     }
 }
+

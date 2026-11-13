@@ -18,9 +18,9 @@ final class HudPosition extends Screen {
         context.drawCenteredTextWithShadow(textRenderer, hint, width / 2, 8, 0xFFFFFFFF);
         int left = Math.max(0, Math.min(x, width - 100));
         int top = Math.max(0, Math.min(y, height - 29));
-        context.fill(left, top, left + 100, top + 29, 0xDC000000);
-        context.drawText(textRenderer, "VOID / HUD", left + 6, top + 4, 0xFFCCD0D6, false);
-        context.drawText(textRenderer, "Position preview", left + 6, top + 16, 0xFFFFFFFF, false);
+        context.fill(left, top, left + 100, top + 29, 0x22000000);
+        context.drawText(textRenderer, "XYZ  8 / 13 / 8", left + 6, top + 4, 0xFFCCD0D6, false);
+        context.drawText(textRenderer, "FPS  120", left + 6, top + 16, 0xFFFFFFFF, false);
     }
 
     @Override public boolean mouseClicked(Click click, boolean twice) {
@@ -38,3 +38,4 @@ final class HudPosition extends Screen {
 
     @Override public void close() { client.setScreen(parent); }
 }
+
