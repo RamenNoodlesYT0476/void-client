@@ -9,6 +9,9 @@ final class ModuleIcons {
         return switch (id) {
             case "switch.sword" -> Items.DIAMOND_SWORD;
             case "switch.crystal" -> Items.END_CRYSTAL;
+            case "switch.blastBuffer" -> Items.OBSIDIAN;
+            case "switch.crystalWarning" -> Items.AMETHYST_SHARD;
+            case "switch.totemReserve" -> Items.GOLD_INGOT;
             case "switch.totem" -> Items.TOTEM_OF_UNDYING;
             case "sprintStatus", "switch.sprint" -> Items.LEATHER_BOOTS;
             case "switch.tool" -> Items.DIAMOND_PICKAXE;

@@ -59,6 +59,9 @@ final class Console extends Screen {
                 {"combat.weapon","Kill Aura weapon","Swords","Any"},
                 {"combat.cooldown","Attack cooldown","95%","85%","75%"},
                 {"crystal.mode","Crystal Aura","Place + break","Place","Break"},
+                {"crystal.buffer","Aura minimum self-distance","2 blocks","2.5 blocks","3 blocks","3.5 blocks","4 blocks"},
+                {"crystal.warningRadius","Crystal warning radius","4 blocks","6 blocks","8 blocks","10 blocks"},
+                {"survival.totems","Warn at remaining totems","0","1","2","3"},
                 {"crystal.delay","Crystal delay","2 ticks","4 ticks","6 ticks","8 ticks"},
                 {"alerts.health","Health alert","2 hearts","3 hearts","4 hearts","5 hearts"},
                 {"alerts.sound","Alert sound","On","Off"}

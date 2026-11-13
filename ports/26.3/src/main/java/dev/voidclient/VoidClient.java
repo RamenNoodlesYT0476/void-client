@@ -12,7 +12,7 @@ import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import org.lwjgl.glfw.GLFW;
+
 import java.nio.file.*;
 import java.io.*;
 import java.util.*;
@@ -73,10 +73,10 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         });
         for(var p:FabricLoader.getInstance().getEntrypoints("voidclient",VoidPlugin.class))p.register(this);
         var category=KeyMapping.Category.register(net.minecraft.resources.Identifier.fromNamespaceAndPath("voidclient","general"));
-        var key=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.voidclient.open", GLFW.GLFW_KEY_RIGHT_BRACKET, category));
+        var key=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.voidclient.open", InputConstants.KEY_RBRACKET, category));
         var shortcuts=new LinkedHashMap<KeyMapping,Module>();
         for(var module:modules) if(module.id().startsWith("switch.")){
-            var bind=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.voidclient."+module.id(), GLFW.GLFW_KEY_UNKNOWN, category));
+            var bind=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.voidclient."+module.id(), InputConstants.UNKNOWN.getValue(), category));
             shortcuts.put(bind,module);
         }
         ClientTickEvents.END_CLIENT_TICK.register(c->{
@@ -96,3 +96,4 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         HudLayout.draw(g,false);
     }
 }
+

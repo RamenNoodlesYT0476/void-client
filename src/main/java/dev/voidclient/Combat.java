@@ -23,12 +23,19 @@ final class Combat {
         toggle(registry, "sword", "Kill Aura");
         toggle(registry, "crystal", "Crystal aura");
         toggle(registry, "totem", "Auto totem");
+        Preferences.toggle(registry, "blastBuffer", "Crystal Aura blast buffer");
         ClientTickEvents.END_CLIENT_TICK.register(Combat::tick);
     }
 
     private static void toggle(VoidClient registry, String key, String name) {
         registry.action("switch." + key, name, client ->
             VoidClient.set("switch." + key, Boolean.toString(!VoidClient.switchOn(key))));
+    }
+
+    static boolean outsideBlastBuffer(double squaredDistance) {
+        if (!VoidClient.switchOn("blastBuffer")) return true;
+        double minimum = 2 + 0.5 * VoidClient.number("crystal.buffer", 5);
+        return squaredDistance >= minimum * minimum;
     }
 
     private static double range() {
@@ -71,6 +78,7 @@ final class Combat {
         if (!VoidClient.switchOn("crystal") || player.age < nextCrystalTick) return;
         var nearby = client.world.getEntitiesByClass(EndCrystalEntity.class, player.getBoundingBox().expand(reach),
             crystal -> player.squaredDistanceTo(crystal) <= reach * reach && player.canSee(crystal) &&
+                outsideBlastBuffer(player.squaredDistanceTo(crystal)) &&
                 target.squaredDistanceTo(crystal) < player.squaredDistanceTo(crystal));
         if (!nearby.isEmpty() && VoidClient.number("crystal.mode", 3) != 1) {
             attack(client, nearby.stream().min(Comparator.comparingDouble(crystal -> target.squaredDistanceTo(crystal))).orElseThrow());
@@ -80,6 +88,7 @@ final class Combat {
             var state = client.world.getBlockState(pos);
             var center = net.minecraft.util.math.Vec3d.ofBottomCenter(pos.up());
             if ((state.isOf(Blocks.OBSIDIAN) || state.isOf(Blocks.BEDROCK)) && client.world.isAir(pos.up()) &&
+                outsideBlastBuffer(player.squaredDistanceTo(center)) &&
                 target.squaredDistanceTo(center) < player.squaredDistanceTo(center) &&
                 client.world.getOtherEntities(null, new Box(pos.up()).stretch(0, 1, 0)).isEmpty()) {
                 if (client.interactionManager.interactBlock(player, hand, hit).isAccepted()) player.swingHand(hand);

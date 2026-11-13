@@ -23,12 +23,19 @@ final class Combat {
         toggle(registry, "sword", "Kill Aura");
         toggle(registry, "crystal", "Crystal aura");
         toggle(registry, "totem", "Auto totem");
+        Preferences.toggle(registry, "blastBuffer", "Crystal Aura blast buffer");
         ClientTickEvents.END_CLIENT_TICK.register(Combat::tick);
     }
 
     private static void toggle(VoidClient registry, String key, String name) {
         registry.action("switch." + key, name, client ->
             VoidClient.set("switch." + key, Boolean.toString(!VoidClient.switchOn(key))));
+    }
+
+    static boolean outsideBlastBuffer(double squaredDistance) {
+        if (!VoidClient.switchOn("blastBuffer")) return true;
+        double minimum = 2 + 0.5 * VoidClient.number("crystal.buffer", 5);
+        return squaredDistance >= minimum * minimum;
     }
 
     private static double range() {
@@ -71,6 +78,7 @@ final class Combat {
         if (!VoidClient.switchOn("crystal") || player.tickCount < nextCrystalTick) return;
         var nearby = client.level.getEntitiesOfClass(EndCrystal.class, player.getBoundingBox().inflate(reach),
             crystal -> player.distanceToSqr(crystal) <= reach * reach && player.hasLineOfSight(crystal) &&
+                outsideBlastBuffer(player.distanceToSqr(crystal)) &&
                 target.distanceToSqr(crystal) < player.distanceToSqr(crystal));
         if (!nearby.isEmpty() && VoidClient.number("crystal.mode", 3) != 1) {
             attack(client, nearby.stream().min(Comparator.comparingDouble(crystal -> target.distanceToSqr(crystal))).orElseThrow());
@@ -80,6 +88,7 @@ final class Combat {
             var state = client.level.getBlockState(pos);
             var center = net.minecraft.world.phys.Vec3.atBottomCenterOf(pos.above());
             if ((state.is(Blocks.OBSIDIAN) || state.is(Blocks.BEDROCK)) && client.level.isEmptyBlock(pos.above()) &&
+                outsideBlastBuffer(player.distanceToSqr(center)) &&
                 target.distanceToSqr(center) < player.distanceToSqr(center) &&
                 client.level.getEntities(null, new AABB(pos.above()).expandTowards(0, 1, 0)).isEmpty()) {
                 if (client.gameMode.useItemOn(player, hand, hit).consumesAction()) player.swing(hand,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
