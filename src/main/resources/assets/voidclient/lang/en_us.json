@@ -28,5 +28,6 @@
   "key.voidclient.switch.armor": "Toggle Auto Armor",
   "key.voidclient.switch.mend": "Toggle Auto Mend",
   "key.voidclient.switch.holeRadar": "Toggle Hole Radar",
-  "key.voidclient.anchorCycle": "Run Anchor Sync"
+  "key.voidclient.anchorCycle": "Run Anchor Sync",
+  "key.voidclient.switch.anchorSync": "Toggle Anchor Sync"
 }

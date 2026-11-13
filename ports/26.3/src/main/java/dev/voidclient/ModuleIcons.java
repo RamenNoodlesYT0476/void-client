@@ -19,7 +19,8 @@ final class ModuleIcons {
             case "switch.tagMob" -> Items.NAME_TAG;
             case "switch.expThrow" -> Items.EXPERIENCE_BOTTLE;
             case "switch.lookDown" -> Items.ENDER_PEARL;
-            case "anchorCycle" -> Items.RESPAWN_ANCHOR;
+            case "switch.anchorSync" -> Items.RESPAWN_ANCHOR;
+            case "anchorCycle" -> Items.FLINT_AND_STEEL;
             case "anchorCharges" -> Items.GLOWSTONE;
             case "switch.surround" -> Items.OBSIDIAN;
             case "switch.holeRadar" -> Items.BEDROCK;

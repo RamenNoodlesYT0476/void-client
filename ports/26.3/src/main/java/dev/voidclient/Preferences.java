@@ -48,7 +48,7 @@ final class Preferences {
 
         return switch (module.id()) {
 
-            case "anchorCycle", "switch.surround", "switch.holeRadar", "switch.armor", "switch.mend", "switch.gap", "switch.autoWeapon", "switch.sword", "switch.crystal", "switch.totem", "switch.blastBuffer" -> 0;
+            case "switch.anchorSync", "anchorCycle", "switch.surround", "switch.holeRadar", "switch.armor", "switch.mend", "switch.gap", "switch.autoWeapon", "switch.sword", "switch.crystal", "switch.totem", "switch.blastBuffer" -> 0;
 
             case "switch.lowHealth", "switch.durabilityAlert", "switch.crystalWarning", "switch.totemReserve" -> 3;
 

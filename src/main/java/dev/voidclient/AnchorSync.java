@@ -16,6 +16,7 @@ import net.minecraft.util.hit.HitResult;
 public final class AnchorSync {
     private enum Phase { CHARGE, WAIT_FOR_CHARGE, DETONATE, WAIT_FOR_REMOVAL }
     private static AnchorSync pending;
+    private static boolean sendingUse;
     private final ClientWorld level;
     private final BlockPos pos;
     private final int originalSlot;
@@ -33,7 +34,17 @@ public final class AnchorSync {
     }
 
     static void register(VoidClient registry) {
-        registry.action("anchorCycle", "Anchor Sync", AnchorSync::start);
+        Preferences.toggle(registry, "anchorSync", "Anchor Sync");
+        registry.action("anchorCycle", "Run Anchor Sync once", AnchorSync::start);
+        net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
+            var c = MinecraftClient.getInstance();
+            if (world != c.world || player != c.player || sendingUse || !VoidClient.switchOn("anchorSync") ||
+                hand != Hand.MAIN_HAND || player.isSneaking() || player.isSpectator() ||
+                !world.getBlockState(hit.getBlockPos()).isOf(Blocks.RESPAWN_ANCHOR) ||
+                c.world.getEnvironmentAttributes().getAttributeValue(EnvironmentAttributes.RESPAWN_ANCHOR_WORKS_GAMEPLAY, hit.getBlockPos())) return net.minecraft.util.ActionResult.PASS;
+            if (pending == null) startAt(c, hit);
+            return net.minecraft.util.ActionResult.FAIL;
+        });
         registry.hud("anchorCharges", "Anchor charges", c -> {
             var hit = aim(c);
             if (hit == null) return null;
@@ -49,7 +60,10 @@ public final class AnchorSync {
 
     private static void start(MinecraftClient c) {
         if (c.player == null || c.world == null || c.interactionManager == null || pending != null) return;
-        var hit = aim(c);
+        startAt(c, aim(c));
+    }
+
+    private static void startAt(MinecraftClient c, BlockHitResult hit) {
         if (hit == null || !c.world.getBlockState(hit.getBlockPos()).isOf(Blocks.RESPAWN_ANCHOR)) {
             SurvivalKit.message(c, "Aim at a respawn anchor"); return;
         }
@@ -96,8 +110,9 @@ public final class AnchorSync {
         }
         phase = charge ? Phase.WAIT_FOR_CHARGE : Phase.WAIT_FOR_REMOVAL;
         inv.setSelectedSlot(slot);
+        sendingUse = true;
         try {
             c.interactionManager.interactBlock(c.player, Hand.MAIN_HAND, hit);
-        } finally { inv.setSelectedSlot(originalSlot); }
+        } finally { sendingUse = false; inv.setSelectedSlot(originalSlot); }
     }
 }
