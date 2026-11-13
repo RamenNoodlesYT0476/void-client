@@ -89,14 +89,14 @@ def launch(data, account):
 
 def main():
     data = json.load(sys.stdin)
-    if data["mode"] == "signin":
+    if data["mode"] in ("signin", "signin-play"):
         account = interactive_login(data["client"])
     else:
         account = mc.microsoft_account.complete_refresh(data["client"], None, None, data["refresh"])
     if not all(account.get(k) for k in ("name","id","access_token","refresh_token")):
         raise RuntimeError("profile")
     emit("account", {"name":account["name"], "refresh":account["refresh_token"]})
-    if data["mode"] == "play":
+    if data["mode"] in ("play", "signin-play"):
         launch(data, account)
     else:
         emit("status", "Signed in as " + account["name"] + ".")

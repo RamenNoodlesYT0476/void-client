@@ -21,7 +21,7 @@ sealed class ModBrowser : Form {
     public ModBrowser(string directory,string instanceName) {
         instance=directory; Text="Browse mods • "+instanceName;
         ClientSize=new Size(572,430);StartPosition=FormStartPosition.CenterParent;
-        FormBorderStyle=FormBorderStyle.FixedDialog;MaximizeBox=false;
+        MinimumSize=Size;FormBorderStyle=FormBorderStyle.Sizable;MaximizeBox=true;
         BackColor=Color.FromArgb(24,22,32);ForeColor=Color.White;
         provider.DropDownStyle=ComboBoxStyle.DropDownList;
         provider.Items.AddRange(new[]{"Modrinth","CurseForge"});provider.SelectedIndex=0;
@@ -34,7 +34,13 @@ sealed class ModBrowser : Form {
         AddButton(next,"Next",110,311,80,delegate{offset+=20;Search();});
         AddButton(new Button(),"Website",217,311,95,OpenSite);
         AddButton(new Button(),"Review and install",325,311,233,Install);
-        status.SetBounds(14,357,540,65);ResetResults();
+        status.SetBounds(14,357,540,65);
+        hits.Anchor=AnchorStyles.Top|AnchorStyles.Left|AnchorStyles.Right|AnchorStyles.Bottom;
+        query.Anchor=AnchorStyles.Top|AnchorStyles.Left|AnchorStyles.Right;
+        status.Anchor=AnchorStyles.Bottom|AnchorStyles.Left|AnchorStyles.Right;
+        foreach(Control control in Controls)if(control is Button)
+            control.Anchor=control.Top<50?AnchorStyles.Top|AnchorStyles.Right:AnchorStyles.Bottom|AnchorStyles.Left;
+        ResetResults();
         provider.SelectedIndexChanged+=delegate{ResetResults();};
         query.TextChanged+=delegate{ResetResults();};
         query.KeyDown+=delegate(object sender,KeyEventArgs e){if(e.KeyCode==Keys.Enter){e.SuppressKeyPress=true;offset=0;Search();}};

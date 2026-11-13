@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
-class Desktop : Form {
+partial class Desktop : Form {
     static readonly string HomeDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Void Client");
     static readonly string Instances = Path.Combine(HomeDir,"instances");
     static readonly string Source = AppDomain.CurrentDomain.BaseDirectory;
@@ -65,25 +65,8 @@ class Desktop : Form {
             LabelAt(status,"Install Void Launcher, then create instances and choose their mods.",22,100,660,56,11,"#ccd0dd");
             ButtonAt("Install and open launcher",22,169,238,"#9e2549",Install);
         }else{
-            LabelAt(account,"",356,14,330,25,10,"#b9c9ef");
-            ButtonAt("Microsoft account",356,45,159,"#49385f",AccountClick);
-            ButtonAt("Launcher settings",524,45,158,"#393942",Settings);
-            LabelAt(new Label(),"Instances",22,95,240,25,12,"#e5deef");
-            LabelAt(new Label(),"Instance mods",290,95,370,25,12,"#e5deef");
-            ListAt(instances,22,252);ListAt(mods,290,392);
-            instances.SelectedIndexChanged+=delegate{RefreshMods();if(Active!=null && prefs.Remember){prefs.Last=Path.GetFileName(Active);SavePrefs();}};
-            ButtonAt("New instance",22,330,123,"#49385f",NewInstance);
-            ButtonAt("Open folder",151,330,123,"#393942",delegate{if(Active!=null)Process.Start("explorer.exe","\""+Active+"\"");});
-            ButtonAt("Add JARs",290,330,125,"#49385f",ImportMods);
-            ButtonAt("Enable / disable",422,330,143,"#393942",ToggleMod);
-            ButtonAt("Play",572,330,110,"#aa234b",delegate{RunWorker("play");});
-            ButtonAt("Install Void utilities",290,373,178,"#49385f",InstallUtilities);
-            ButtonAt("Browse mods",480,373,202,"#49385f",delegate{
-                if(Active==null){status.Text="Select or create an instance first.";return;}
-                using(var browser=new ModBrowser(Active,instances.SelectedItem.ToString()))browser.ShowDialog(this);
-                RefreshMods();
-            });
-            LabelAt(status,"",22,421,660,48,10,"#b8c4d9");
+            Controls.Clear();
+            BuildLibrary();
             Shown+=delegate{try{Directory.CreateDirectory(Instances);var original=Path.Combine(Instances,"1.21.11");
                 if(File.Exists(PrefFile))prefs=Json.Deserialize<Preferences>(File.ReadAllText(PrefFile))??new Preferences();
                 Reload(prefs.Remember && !String.IsNullOrEmpty(prefs.Last)?Path.Combine(Instances,Path.GetFileName(prefs.Last)):original);
@@ -146,7 +129,7 @@ class Desktop : Form {
             dialog.Controls.Add(new Label{Text=label,Left=12,Top=10,Width=435,Height=32});
             var input=new TextBox{Left=12,Top=46,Width=435,Text=value};dialog.Controls.Add(input);
             var ok=new Button{Text="Save",Left=359,Top=84,DialogResult=DialogResult.OK};dialog.Controls.Add(ok);dialog.AcceptButton=ok;
-            return dialog.ShowDialog()==DialogResult.OK?input.Text.Trim():null;
+            StyleDialog(dialog);return dialog.ShowDialog()==DialogResult.OK?input.Text.Trim():null;
         }
     }
     void InstallUtilities(){
@@ -163,7 +146,7 @@ class Desktop : Form {
             app.Click+=delegate{try{Configure();}catch(Exception e){MessageBox.Show(dialog,e.Message);}};
             var save=new Button{Text="Save",Left=307,Top=158,DialogResult=DialogResult.OK};
             dialog.Controls.AddRange(new Control[]{ram,remember,app,save});dialog.AcceptButton=save;
-            if(dialog.ShowDialog(this)!=DialogResult.OK)return;
+            StyleDialog(dialog);if(dialog.ShowDialog(this)!=DialogResult.OK)return;
             prefs.MemoryMiB=(int)ram.Value;prefs.Remember=remember.Checked;
             prefs.Last=prefs.Remember && Active!=null?Path.GetFileName(Active):null;SavePrefs();
             status.Text="Launcher settings saved.";
@@ -204,7 +187,7 @@ class Desktop : Form {
         var tmp=SessionFile+"."+Guid.NewGuid().ToString("N");File.WriteAllBytes(tmp,bytes);
         if(File.Exists(SessionFile))File.Replace(tmp,SessionFile,null);else File.Move(tmp,SessionFile);
     }
-    void ShowAccount(){var s=ReadSession();account.Text=s==null?"Signed out":s["name"].ToString();}
+    void ShowAccount(){var s=ReadSession();signIn.Text=s==null?"Sign in with Microsoft":"Sign out";account.Text=s==null?"Signed out":s["name"].ToString();}
     void AccountClick(){
         if(File.Exists(SessionFile)){if(MessageBox.Show("Sign out of this launcher?","Microsoft account",MessageBoxButtons.YesNo)==DialogResult.Yes){File.Delete(SessionFile);ShowAccount();}return;}
         RunWorker("signin");
@@ -212,11 +195,11 @@ class Desktop : Form {
     async void RunWorker(string mode){
         if(working)return;
         try{
-            Guid id;if(!Guid.TryParse(ClientId(),out id)){Configure();if(!Guid.TryParse(ClientId(),out id))return;}
+            Guid id;if(!Guid.TryParse(ClientId(),out id)){status.Text="Microsoft sign-in needs an approved application ID. Open Settings > Microsoft application settings.";return;}
             if(mode=="play" && Active==null){status.Text="Select an instance to play.";return;}var saved=ReadSession();
-            if(mode=="play"&&(saved==null||!Equals(saved["client"],id.ToString()))){status.Text="Sign in with the configured Microsoft application before playing.";return;}
+            if(mode=="play"&&(saved==null||!Equals(saved["client"],id.ToString()))){mode="signin-play";}
             var request=new Dictionary<string,object>{{"client",id.ToString()},{"mode",mode},{"instance",Active},{"memoryMiB",prefs.MemoryMiB},{"manifest",Path.Combine(Source,"payload","fabric-profile.json")},{"cache",Path.Combine(HomeDir,"game-files")}};
-            if(saved!=null)request["refresh"]=saved["refresh"];
+            if(mode=="play" && saved!=null)request["refresh"]=saved["refresh"];
             working=true;status.Text=mode=="play"?"Checking your Minecraft account…":"Complete sign-in in your browser.";
             var info=new ProcessStartInfo(Path.Combine(Source,"engine","python.exe"),"-B -u launch.py"){WorkingDirectory=Path.Combine(Source,"engine"),UseShellExecute=false,CreateNoWindow=true,RedirectStandardInput=true,RedirectStandardOutput=true};
             info.EnvironmentVariables["PYTHONIOENCODING"]="utf-8";
