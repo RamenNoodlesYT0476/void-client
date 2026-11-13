@@ -1,5 +1,7 @@
 """Private stdio protocol between Void's desktop UI and the launch worker."""
 import base64
+import configparser
+import hashlib
 import json
 import os
 import secrets
@@ -7,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+import tempfile
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -87,8 +90,52 @@ def launch(data, account):
     except subprocess.TimeoutExpired:
         emit("status", "Minecraft started.")
 
+def prism_instance(source, folder, name):
+    """Publish a Prism instance atomically, sharing Void's game directory."""
+    import _winapi
+    source = source.resolve(strict=True)
+    folder.mkdir(parents=True, exist_ok=True)
+    key = hashlib.sha256(os.path.normcase(str(source)).encode()).hexdigest()[:24]
+    target = folder / ("Void-" + key)
+    if not target.exists():
+        stage = Path(tempfile.mkdtemp(prefix=".void-", dir=folder))
+        try:
+            # Prism reads these components and resolves their libraries itself.
+            components = [{"uid": "net.minecraft", "version": "1.21.11", "important": True},
+                          {"uid": "net.fabricmc.fabric-loader", "version": "0.20.1"}]
+            (stage / "mmc-pack.json").write_text(json.dumps({"formatVersion": 1, "components": components}), encoding="utf-8")
+            label = " ".join(name.splitlines()).replace("\\", "\\\\")
+            (stage / "instance.cfg").write_text("[General]\nInstanceType=OneSix\nname=Void - " + label + "\n", encoding="utf-8")
+            _winapi.CreateJunction(str(source), str(stage / "minecraft"))
+            try:
+                stage.rename(target)
+            except FileExistsError:
+                pass  # Another launcher created the same wrapper first.
+        finally:
+            if stage.exists():
+                shutil.rmtree(stage)  # Python 3.13 does not follow Windows junctions here.
+    game = target / "minecraft"
+    if not game.is_junction() or not game.samefile(source):
+        raise RuntimeError("Prism instance folder conflicts with the selected Void instance.")
+    return target.name
+
+def launch_with_prism(data):
+    executable = Path(data["prismExe"]).resolve(strict=True)
+    root = Path(data["prismRoot"]).resolve(strict=True)
+    settings = configparser.ConfigParser(interpolation=None, strict=False)
+    with (root / "prismlauncher.cfg").open(encoding="utf-8-sig") as handle:
+        settings.read_file(handle)
+    folder = root / settings.get("General", "InstanceDir", fallback="instances")
+    instance_id = prism_instance(Path(data["instance"]), folder, data["name"])
+    subprocess.Popen([str(executable), "--dir", str(root), "--launch", instance_id],
+                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    emit("status", "Launch requested in Prism. Choose your Minecraft account there if prompted.")
+
 def main():
     data = json.load(sys.stdin)
+    if data["mode"] == "prism":
+        launch_with_prism(data)
+        return
     if data["mode"] in ("signin", "signin-play"):
         account = interactive_login(data["client"])
     else:
@@ -105,6 +152,9 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
+        if isinstance(exc, (OSError, RuntimeError, configparser.Error)) and sys.argv[1:] == ["prism"]:
+            emit("error", "Prism handoff failed: " + str(exc))
+            sys.exit(1)
         messages = {"AzureAppNotPermitted":"Minecraft Services denied this application. Check Void's approved application ID.",
                     "InvalidRefreshToken":"Your Microsoft session expired. Sign out and sign in again.",
                     "AccountNotOwnMinecraft":"This account has no Minecraft Java profile.",

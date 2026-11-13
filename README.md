@@ -8,6 +8,11 @@ Choose **New instance**, give it a name, and select it. New instances start with
 
 Choose **Microsoft account** to sign in through your browser. Choose an instance and **Play** to launch it directly. The first launch downloads Java and the Minecraft assets and libraries to a shared cache. Right Shift opens the utility console in a world. Microsoft account also lets you sign out. Void protects the saved refresh token with Windows DPAPI for the current Windows user.
 
+### Launch with Prism
+Select a Void instance and choose **Launch with Prism** to use your Prism Minecraft account. This mode requires [Prism Launcher for Windows](https://prismlauncher.org/download/windows/). From the repository root, install the dependency with `winget import -i desktop/prism-dependency.json`. Open Prism once and add your Microsoft account in its account settings.
+
+Void creates one entry in your Prism instances folder for each Void instance you launch. Both launchers use the same game folder through a Windows directory junction, so mod changes and worlds appear in both. Avoid running the same instance twice. Prism handles Java, memory settings, game libraries and Microsoft authentication for this launch. The handoff works without a Void application ID.
+
 ### Microsoft application setup
 The publisher must register a Microsoft Entra public desktop application supporting personal Microsoft accounts, register the mobile/desktop redirect URI **http://localhost**, and obtain access to the Minecraft Java Edition game services. Enter the approved public application (client) ID under **Launcher settings → Microsoft application settings**, or set VOID_MICROSOFT_CLIENT_ID before starting Void. For distribution, place the approved ID in microsoft-app.txt beside Void Setup.exe. Setup configures it for players. This build ships without an application ID. Players sign in with an account that has a Java Edition profile. Authentication uses a loopback redirect, PKCE and state validation.
 ## Utility console

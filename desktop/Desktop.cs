@@ -26,6 +26,8 @@ partial class Desktop : Form {
         public int MemoryMiB { get; set; }
         public bool Remember { get; set; }
         public string Last { get; set; }
+        public string PrismExe { get; set; }
+        public string PrismRoot { get; set; }
         public Preferences(){ MemoryMiB=3072; Remember=true; }
     }
     Preferences prefs = new Preferences();
@@ -192,16 +194,46 @@ partial class Desktop : Form {
         if(File.Exists(SessionFile)){if(MessageBox.Show("Sign out of this launcher?","Microsoft account",MessageBoxButtons.YesNo)==DialogResult.Yes){File.Delete(SessionFile);ShowAccount();}return;}
         RunWorker("signin");
     }
+    Dictionary<string,object> PrismRequest(){
+        if(Active==null){status.Text="Select an instance to play.";return null;}
+        var exe=new[]{prefs.PrismExe,
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","PrismLauncher","prismlauncher.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"PrismLauncher","prismlauncher.exe")}.FirstOrDefault(File.Exists);
+        if(exe==null){
+            using(var picker=new OpenFileDialog{Title="Select Prism Launcher (install PrismLauncher.PrismLauncher with winget if needed)",Filter="Prism Launcher|prismlauncher.exe"}){
+                if(picker.ShowDialog(this)!=DialogResult.OK)return null;
+                exe=picker.FileName;
+            }
+        }
+        var root=new[]{prefs.PrismRoot,Path.GetDirectoryName(exe),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"PrismLauncher")}
+            .FirstOrDefault(p=>!String.IsNullOrEmpty(p)&&File.Exists(Path.Combine(p,"prismlauncher.cfg")));
+        if(root==null){
+            using(var picker=new OpenFileDialog{Title="Choose your Prism data folder's configuration file",Filter="Prism settings|prismlauncher.cfg"}){
+                if(picker.ShowDialog(this)!=DialogResult.OK)return null;
+                root=Path.GetDirectoryName(picker.FileName);
+            }
+        }
+        prefs.PrismExe=exe;prefs.PrismRoot=root;SavePrefs();
+        return new Dictionary<string,object>{{"mode","prism"},{"prismExe",exe},{"prismRoot",root},{"instance",Active},{"name",instances.SelectedItem.ToString()}};
+    }
     async void RunWorker(string mode){
         if(working)return;
         try{
-            Guid id;if(!Guid.TryParse(ClientId(),out id)){status.Text="Microsoft sign-in needs an approved application ID. Open Settings > Microsoft application settings.";return;}
+            Guid id=Guid.Empty;
+            Dictionary<string,object> request;
+            if(mode=="prism"){
+                request=PrismRequest();
+                if(request==null)return;
+            }else{
+            if(!Guid.TryParse(ClientId(),out id)){status.Text="Select Launch with Prism to use your Prism account, or configure Void's application ID in Settings.";return;}
             if(mode=="play" && Active==null){status.Text="Select an instance to play.";return;}var saved=ReadSession();
             if(mode=="play"&&(saved==null||!Equals(saved["client"],id.ToString()))){mode="signin-play";}
-            var request=new Dictionary<string,object>{{"client",id.ToString()},{"mode",mode},{"instance",Active},{"memoryMiB",prefs.MemoryMiB},{"manifest",Path.Combine(Source,"payload","fabric-profile.json")},{"cache",Path.Combine(HomeDir,"game-files")}};
+            request=new Dictionary<string,object>{{"client",id.ToString()},{"mode",mode},{"instance",Active},{"memoryMiB",prefs.MemoryMiB},{"manifest",Path.Combine(Source,"payload","fabric-profile.json")},{"cache",Path.Combine(HomeDir,"game-files")}};
             if(mode=="play" && saved!=null)request["refresh"]=saved["refresh"];
-            working=true;status.Text=mode=="play"?"Checking your Minecraft account…":"Complete sign-in in your browser.";
-            var info=new ProcessStartInfo(Path.Combine(Source,"engine","python.exe"),"-B -u launch.py"){WorkingDirectory=Path.Combine(Source,"engine"),UseShellExecute=false,CreateNoWindow=true,RedirectStandardInput=true,RedirectStandardOutput=true};
+            }
+            working=true;status.Text=mode=="prism"?"Opening instance in Prism…":mode=="play"?"Checking your Minecraft account…":"Complete sign-in in your browser.";
+            var info=new ProcessStartInfo(Path.Combine(Source,"engine","python.exe"),mode=="prism"?"-B -u launch.py prism":"-B -u launch.py"){WorkingDirectory=Path.Combine(Source,"engine"),UseShellExecute=false,CreateNoWindow=true,RedirectStandardInput=true,RedirectStandardOutput=true};
             info.EnvironmentVariables["PYTHONIOENCODING"]="utf-8";
             using(var worker=Process.Start(info)){
                 worker.StandardInput.Write(Json.Serialize(request));worker.StandardInput.Close();string line;

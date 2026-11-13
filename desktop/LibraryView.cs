@@ -80,7 +80,8 @@ partial class Desktop {
         footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         footer.Controls.Add(Command("Sign in with Microsoft",AccountClick,"#344e78",signIn),0,0);
         account.Dock=DockStyle.Fill;account.TextAlign=ContentAlignment.MiddleLeft;account.AutoEllipsis=true;footer.Controls.Add(account,1,0);
-        footer.Controls.Add(Command("Play instance",delegate{RunWorker("play");},"#ac254c"),2,0);
+        footer.Controls.Add(Bar(Command("Launch with Prism",delegate{RunWorker("prism");},"#5a4078"),
+            Command("Play instance",delegate{RunWorker("play");},"#ac254c")),2,0);
         Row(outer,footer);status.Dock=DockStyle.Fill;status.MinimumSize=new Size(0,38);status.ForeColor=ColorOf("#b7b4c7");Row(outer,status);
     }
     void ToggleFullScreen(){
