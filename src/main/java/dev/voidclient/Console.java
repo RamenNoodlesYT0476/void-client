@@ -62,6 +62,8 @@ final class Console extends Screen {
                 {"crystal.buffer","Aura minimum self-distance","2 blocks","2.5 blocks","3 blocks","3.5 blocks","4 blocks"},
                 {"crystal.warningRadius","Crystal warning radius","4 blocks","6 blocks","8 blocks","10 blocks"},
                 {"survival.totems","Warn at remaining totems","0","1","2","3"},
+                {"food.threshold","Auto Eat hunger level","14","15","16","17","18"},
+                {"refill.threshold","Refill hotbar at","4 items","8 items","12 items","16 items"},
                 {"crystal.delay","Crystal delay","2 ticks","4 ticks","6 ticks","8 ticks"},
                 {"alerts.health","Health alert","2 hearts","3 hearts","4 hearts","5 hearts"},
                 {"alerts.sound","Alert sound","On","Off"}

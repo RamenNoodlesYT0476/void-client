@@ -58,6 +58,7 @@ partial class Desktop : Form {
         list.BorderStyle=BorderStyle.FixedSingle;list.IntegralHeight=false;Controls.Add(list);
     }
     Desktop(bool install){
+        Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         setup=install;Text=install?"Void Launcher Setup":"Void Launcher";ClientSize=new Size(704,install?234:472);
         Font=new Font("Segoe UI",10);BackColor=ColorOf("#121118");ForeColor=Color.White;
         FormBorderStyle=FormBorderStyle.FixedDialog;MaximizeBox=false;StartPosition=FormStartPosition.CenterScreen;

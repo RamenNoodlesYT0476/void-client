@@ -11,5 +11,17 @@
   "key.voidclient.switch.durabilityAlert": "Toggle Durability Alert",
   "key.voidclient.switch.blastBuffer": "Toggle Crystal Aura Blast Buffer",
   "key.voidclient.switch.crystalWarning": "Toggle Nearby Crystal Warning",
-  "key.voidclient.switch.totemReserve": "Toggle Low Totem Reserve"
+  "key.voidclient.switch.totemReserve": "Toggle Low Totem Reserve",
+  "key.voidclient.switch.eat": "Toggle Auto Eat",
+  "key.voidclient.switch.gap": "Toggle Auto Golden Apple",
+  "key.voidclient.switch.replenish": "Toggle Auto Replenish",
+  "key.voidclient.switch.walk": "Toggle Auto Walk",
+  "key.voidclient.switch.jump": "Toggle Auto Jump",
+  "key.voidclient.switch.sneak": "Toggle Sneak",
+  "key.voidclient.switch.autoWeapon": "Toggle Auto Weapon",
+  "key.voidclient.switch.shear": "Toggle Auto Shearer",
+  "key.voidclient.switch.breed": "Toggle Auto Breed",
+  "key.voidclient.switch.tagMob": "Toggle Auto Nametag",
+  "key.voidclient.switch.expThrow": "Toggle EXP Thrower",
+  "key.voidclient.switch.lookDown": "Toggle Enderman Look"
 }

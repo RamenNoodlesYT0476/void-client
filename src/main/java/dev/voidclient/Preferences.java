@@ -23,7 +23,7 @@ final class Preferences {
     private static int category(VoidClient.Module module) {
         if (module.hud() != null) return 2;
         return switch (module.id()) {
-            case "switch.sword", "switch.crystal", "switch.totem", "switch.blastBuffer" -> 0;
+            case "switch.gap", "switch.autoWeapon", "switch.sword", "switch.crystal", "switch.totem", "switch.blastBuffer" -> 0;
             case "switch.lowHealth", "switch.durabilityAlert", "switch.crystalWarning", "switch.totemReserve" -> 3;
             default -> 1;
         };

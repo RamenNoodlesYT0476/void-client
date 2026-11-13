@@ -7,6 +7,18 @@ import net.minecraft.item.Items;
 final class ModuleIcons {
     static Item item(String id) {
         return switch (id) {
+            case "switch.eat" -> Items.BREAD;
+            case "switch.gap" -> Items.ENCHANTED_GOLDEN_APPLE;
+            case "switch.replenish" -> Items.CHEST;
+            case "switch.walk" -> Items.LEATHER_BOOTS;
+            case "switch.jump" -> Items.RABBIT_FOOT;
+            case "switch.sneak" -> Items.FEATHER;
+            case "switch.autoWeapon" -> Items.IRON_SWORD;
+            case "switch.shear" -> Items.SHEARS;
+            case "switch.breed" -> Items.WHEAT;
+            case "switch.tagMob" -> Items.NAME_TAG;
+            case "switch.expThrow" -> Items.EXPERIENCE_BOTTLE;
+            case "switch.lookDown" -> Items.ENDER_PEARL;
             case "switch.sword" -> Items.DIAMOND_SWORD;
             case "switch.crystal" -> Items.END_CRYSTAL;
             case "switch.blastBuffer" -> Items.OBSIDIAN;

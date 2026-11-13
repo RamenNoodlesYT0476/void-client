@@ -12,7 +12,7 @@ try {
 if ($LASTEXITCODE) {throw 'Could not install launcher dependencies'}
 Add-Content "$engine/python313._pth" 'packages'
 Copy-Item "$PSScriptRoot/catalog.py","$PSScriptRoot/launch.py" $engine -Force
-& "$env:WINDIR/Microsoft.NET/Framework64/v4.0.30319/csc.exe" /nologo /target:winexe /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll /r:System.Security.dll /r:System.Web.Extensions.dll "/out:$project\Void Setup.exe" "$PSScriptRoot\Desktop.cs" "$PSScriptRoot\ModBrowser.cs" "$PSScriptRoot\LibraryView.cs"
+& "$env:WINDIR/Microsoft.NET/Framework64/v4.0.30319/csc.exe" /nologo /target:winexe "/win32icon:$PSScriptRoot/void-client.ico" /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll /r:System.Security.dll /r:System.Web.Extensions.dll "/out:$project\Void Setup.exe" "$PSScriptRoot\Desktop.cs" "$PSScriptRoot\ModBrowser.cs" "$PSScriptRoot\LibraryView.cs"
 if ($LASTEXITCODE) {throw 'Could not compile the desktop launcher'}
 Copy-Item "$project/Void Setup.exe" "$project/Void Launcher.exe" -Force
 

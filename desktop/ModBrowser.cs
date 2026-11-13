@@ -19,6 +19,7 @@ sealed class ModBrowser : Form {
     int offset;
 
     public ModBrowser(string directory,string instanceName) {
+        Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         instance=directory; Text="Browse mods • "+instanceName;
         ClientSize=new Size(572,430);StartPosition=FormStartPosition.CenterParent;
         MinimumSize=Size;FormBorderStyle=FormBorderStyle.Sizable;MaximizeBox=true;

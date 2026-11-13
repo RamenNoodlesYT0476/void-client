@@ -45,6 +45,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
     public void onInitializeClient(){
         if(Files.exists(config))try(var in=Files.newInputStream(config)){cfg.load(in);}catch(Exception e){LoggerFactory.getLogger("VoidClient").warn("Could not load settings",e);}
         Combat.register(this);
+        FieldUtilities.register(this);
         Preferences.register(this);
         ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
