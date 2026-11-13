@@ -103,6 +103,9 @@ def prism_instance(source, folder, name):
             # Prism reads these components and resolves their libraries itself.
             components = [{"uid": "net.minecraft", "version": "1.21.11", "important": True},
                           {"uid": "net.fabricmc.fabric-loader", "version": "0.20.1"}]
+            profile = source / "void-prism-components.json"
+            if profile.is_file():
+                components = json.loads(profile.read_text(encoding="utf-8-sig"))["components"]
             (stage / "mmc-pack.json").write_text(json.dumps({"formatVersion": 1, "components": components}), encoding="utf-8")
             label = " ".join(name.splitlines()).replace("\\", "\\\\")
             (stage / "instance.cfg").write_text("[General]\nInstanceType=OneSix\nname=Void - " + label + "\n", encoding="utf-8")
