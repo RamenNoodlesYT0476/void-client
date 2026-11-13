@@ -70,7 +70,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
 
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,"true"));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
 
     static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
 
@@ -92,6 +92,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
         Combat.register(this);
         FieldUtilities.register(this);
+        SurvivalKit.register(this);
 
 
         Preferences.register(this);
@@ -191,6 +192,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
             || c.gui.screen() instanceof Console || c.gui.screen() instanceof HudPosition || number("hud.hidden",2)==1)return;
 
         HudLayout.draw(g,false);
+        SurvivalKit.drawRadar(g);
 
     }
 

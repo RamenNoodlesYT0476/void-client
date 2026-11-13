@@ -53,8 +53,20 @@ def interactive_login(client_id):
         raise RuntimeError("cancelled")
     return mc.microsoft_account.complete_login(client_id, None, redirect, result["code"][0], verifier)
 
+def apply_pending_update(instance):
+    import hashlib
+    mods = Path(instance) / "mods"
+    pending = mods / "void-client-1.1.0+26.3.installing"
+    if pending.is_file() and hashlib.sha256(pending.read_bytes()).hexdigest() == "7013070b85a22847749e9cb714d17bcc9acc5a8fa3ac3c6d587ed41b91ccadda":
+        try:
+            pending.replace(mods / "void-client-1.1.0+26.3.jar")
+        except PermissionError:
+            raise RuntimeError("Close the running 26.3 game to finish its Void Utilities update.")
+
+
 def launch(data, account):
     instance = Path(data["instance"])
+    apply_pending_update(instance)
     cache = Path(data["cache"])
     manifest = cache / "versions" / VERSION / (VERSION + ".json")
     manifest.parent.mkdir(parents=True, exist_ok=True)
@@ -123,6 +135,7 @@ def prism_instance(source, folder, name):
     return target.name
 
 def launch_with_prism(data):
+    apply_pending_update(data["instance"])
     executable = Path(data["prismExe"]).resolve(strict=True)
     root = Path(data["prismRoot"]).resolve(strict=True)
     settings = configparser.ConfigParser(interpolation=None, strict=False)

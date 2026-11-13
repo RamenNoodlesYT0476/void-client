@@ -23,5 +23,9 @@
   "key.voidclient.switch.breed": "Toggle Auto Breed",
   "key.voidclient.switch.tagMob": "Toggle Auto Nametag",
   "key.voidclient.switch.expThrow": "Toggle EXP Thrower",
-  "key.voidclient.switch.lookDown": "Toggle Enderman Look"
+  "key.voidclient.switch.lookDown": "Toggle Enderman Look",
+  "key.voidclient.switch.surround": "Toggle Surround Once",
+  "key.voidclient.switch.armor": "Toggle Auto Armor",
+  "key.voidclient.switch.mend": "Toggle Auto Mend",
+  "key.voidclient.switch.holeRadar": "Toggle Hole Radar"
 }

@@ -19,6 +19,14 @@ final class ModuleIcons {
             case "switch.tagMob" -> Items.NAME_TAG;
             case "switch.expThrow" -> Items.EXPERIENCE_BOTTLE;
             case "switch.lookDown" -> Items.ENDER_PEARL;
+            case "switch.surround" -> Items.OBSIDIAN;
+            case "switch.holeRadar" -> Items.BEDROCK;
+            case "switch.armor" -> Items.DIAMOND_CHESTPLATE;
+            case "switch.mend" -> Items.EXPERIENCE_BOTTLE;
+            case "damagePreview" -> Items.END_CRYSTAL;
+            case "packSpace" -> Items.CHEST;
+            case "blockLight" -> Items.LANTERN;
+            case "torch" -> Items.TORCH;
             case "switch.sword" -> Items.DIAMOND_SWORD;
             case "switch.crystal" -> Items.END_CRYSTAL;
             case "switch.blastBuffer" -> Items.OBSIDIAN;

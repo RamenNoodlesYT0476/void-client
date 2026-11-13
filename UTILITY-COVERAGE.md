@@ -12,7 +12,7 @@ Compared against the 170 modules registered by the Meteor 1.21.11 build. A Void 
 | ArrowDodge | Not implemented |
 | AttributeSwap | Not implemented |
 | AutoAnvil | Not implemented |
-| AutoArmor | Not implemented |
+| AutoArmor | Native counterpart |
 | AutoCity | Not implemented |
 | AutoEXP | Not implemented |
 | AutoLog | Not implemented |
@@ -34,7 +34,7 @@ Compared against the 170 modules registered by the Meteor 1.21.11 build. A Void 
 | SelfAnvil | Not implemented |
 | SelfTrap | Not implemented |
 | SelfWeb | Not implemented |
-| Surround | Not implemented |
+| Surround | Native counterpart |
 
 ## Player
 
@@ -47,7 +47,7 @@ Compared against the 170 modules registered by the Meteor 1.21.11 build. A Void 
 | AutoClicker | Not implemented |
 | AutoFish | Not implemented |
 | AutoGap | Native counterpart |
-| AutoMend | Not implemented |
+| AutoMend | Native counterpart |
 | AutoReplenish | Native counterpart |
 | AutoRespawn | Native counterpart |
 | AutoTool | Native counterpart |
@@ -130,7 +130,7 @@ Compared against the 170 modules registered by the Meteor 1.21.11 build. A Void 
 | FreeLook | Not implemented |
 | Fullbright | Not implemented |
 | HandView | Not implemented |
-| HoleESP | Not implemented |
+| HoleESP | Native counterpart |
 | ItemPhysics | Not implemented |
 | ItemHighlight | Not implemented |
 | LightOverlay | Not implemented |

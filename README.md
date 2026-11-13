@@ -45,3 +45,8 @@ Use **Utilities → Access** for low-health and low-durability alerts. Use **Set
 In the module library, hover or focus an item icon for its name. A colored underline marks enabled modules. The Utility group includes hotbar food and shield selection and a clear-waypoint action.
 
 Open **Settings → HUD layout** to move the readouts and utility icons independently. Drag inside a panel to move it, or drag its lower-right handle to resize it. Tab selects the other panel when panels overlap. Escape closes the editor. Both panels remember their position and scale in each instance. Under **Utilities → HUD**, toggle **Sprint display** to show the current sprint state.
+
+
+Under **Utilities → Combat**, Surround attempts one ring of obsidian from the hotbar. Hole ESP displays nearby single-block holes on a north-up radar at your feet’s elevation. Blue means all bedrock. Purple means the walls or floor include obsidian. Auto Armor equips a spare from inventory. Auto Mend throws held experience bottles when you look down and equipped Mending armor is below the configured threshold.
+
+Under **Utilities → HUD**, Crystal damage preview estimates blast damage in HP for you and the nearest eligible player to the blast when aiming at a crystal or its base. Inventory space and Block light at feet provide compact survival readouts. **Utilities → Utility → Select torches** selects a torch stack from your hotbar.
