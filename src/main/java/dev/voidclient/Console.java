@@ -50,7 +50,7 @@ final class Console extends Screen {
             String[][] controls={
                 {"accent","Menu accent","Neon red","Purple","Blue","Grey"},
                 {"anchor","HUD corner","Top left","Top right","Bottom left","Bottom right"},
-                {"position","Place HUD","Click to position"},
+                {"position","HUD layout","Move / resize"},
                 {"hud.hidden","HUD","Visible","Hidden"},
                 {"hud.ink","HUD text","Grey","Menu accent"},
                 {"hud.tint","Panel tint","Clear","9%","19%"},
@@ -70,7 +70,7 @@ final class Console extends Screen {
                 button(x+9+(i%cols)*bw,body+(i/cols)*21,bw-3,
                     setting[1]+" / "+setting[2+VoidClient.number(setting[0],count)],
                     ()->{if(setting[0].equals("position")){client.setScreen(new HudPosition(this));return;}
-                        if(setting[0].equals("anchor"))VoidClient.set("hud.custom","false");
+                        if(setting[0].equals("anchor"))HudLayout.resetPositions();
                         Preferences.cycle(setting[0],count);refresh();});
             }
             pager(controls.length,capacity);        }else if(selected!=null){
@@ -119,6 +119,7 @@ final class Console extends Screen {
         }
     }
 }
+
 
 
 

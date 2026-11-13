@@ -10,7 +10,7 @@ final class ModuleIcons {
             case "switch.sword" -> Items.DIAMOND_SWORD;
             case "switch.crystal" -> Items.END_CRYSTAL;
             case "switch.totem" -> Items.TOTEM_OF_UNDYING;
-            case "switch.sprint" -> Items.LEATHER_BOOTS;
+            case "sprintStatus", "switch.sprint" -> Items.LEATHER_BOOTS;
             case "switch.tool" -> Items.DIAMOND_PICKAXE;
             case "switch.respawn" -> Items.RED_BED;
             case "switch.lowHealth" -> Items.GOLDEN_APPLE;
@@ -50,3 +50,4 @@ final class ModuleIcons {
         client.player.sendMessage(net.minecraft.text.Text.literal(food?"No food in hotbar":"No shield in hotbar"),true);
     }
 }
+

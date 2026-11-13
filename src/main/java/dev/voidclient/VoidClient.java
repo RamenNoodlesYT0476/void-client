@@ -49,6 +49,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
         hud("heading","Direction",c->"Facing  "+c.player.getHorizontalFacing().asString());
+        hud("sprintStatus","Sprint display",c->c.player.isSprinting()?"Sprint  •  active":"Sprint  •  idle");
         hud("fps","Frame rate",c->"FPS  "+c.getCurrentFps());
         hud("gear","Tool durability",c->{var s=c.player.getMainHandStack();return s.isDamageable()?"Tool  "+(s.getMaxDamage()-s.getDamage())+" / "+s.getMaxDamage():null;});
         hud("portal","Portal coordinates",c->{var d=c.world.getRegistryKey();if(d!=World.OVERWORLD && d!=World.NETHER)return null;double f=d==World.NETHER?8:0.125;return (f==8?"Overworld":"Nether")+"  "+(int)Math.floor(c.player.getX()*f)+" / "+(int)Math.floor(c.player.getZ()*f);});
@@ -88,32 +89,10 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
             });
         });        HudElementRegistry.addLast(net.minecraft.util.Identifier.of("voidclient","hud"),(g,t)->renderHud(g));
     }
-    static int hudCoordinate(String key,int available){
-        return (int)Math.round(Math.max(0,available) * number(key,1001) / 1000.0);
-    }
     static void renderHud(DrawContext g){
-        var c=MinecraftClient.getInstance();if(c.player==null||c.world==null||c.options.hudHidden||c.getDebugHud().shouldShowDebugHud()||c.currentScreen instanceof Console)return;
-        var lines=new ArrayList<String>();for(var m:modules)if(m.hud!=null&&enabled(m)){String s=m.hud.apply(c);if(s!=null&&!s.isBlank())lines.add(s);}
-        var icons = modules.stream().filter(m -> m.id().startsWith("switch.") && switchOn(m.id().substring(7))).toList();
-        if ((lines.isEmpty() && icons.isEmpty()) || number("hud.hidden",2)==1) return;
-        int spacing=9+number("hud.spacing",3);
-        float scale=0.8f;
-        int width=(int)(g.getScaledWindowWidth()/scale),height=(int)(g.getScaledWindowHeight()/scale);
-        int w=Math.min(width-8,Math.max(lines.stream().mapToInt(c.textRenderer::getWidth).max().orElse(0),icons.size()*16)+4);
-        int h=lines.size()*spacing+(icons.isEmpty()?0:16)+2;
-        int anchor=number("anchor",4);
-        int x=anchor%2==1?width-w-4:4, y=anchor>=2?height-h-28:4;
-        if(Boolean.parseBoolean(cfg.getProperty("hud.custom","false"))){
-            x=hudCoordinate("hud.x",width-w);y=hudCoordinate("hud.y",height-h);
-        }
-        g.getMatrices().pushMatrix();
-        try {
-            g.getMatrices().scale(scale,scale);
-            int alpha=number("hud.tint",3)*24;
-            if(alpha>0)g.fill(x,y,x+w,y+h,alpha<<24);
-            int ink=number("hud.ink",2)==0?0xFFE1E3EF:accent();
-            for(int i=0;i<lines.size();i++)g.drawTextWithShadow(c.textRenderer,c.textRenderer.trimToWidth(lines.get(i),w-4),x+2,y+1+i*spacing,ink);
-            for(int i=0;i<icons.size();i++)g.drawItem(ModuleIcons.item(icons.get(i).id()).getDefaultStack(),x+i*16,y+1+lines.size()*spacing);
-        } finally { g.getMatrices().popMatrix(); }
+        var c=MinecraftClient.getInstance();
+        if(c.player==null || c.world==null || c.options.hudHidden || c.getDebugHud().shouldShowDebugHud()
+            || c.currentScreen instanceof Console || c.currentScreen instanceof HudPosition || number("hud.hidden",2)==1)return;
+        HudLayout.draw(g,false);
     }
 }

@@ -43,3 +43,5 @@ Press **]** in a world to open Void. Combat includes Kill Aura, Crystal Aura and
 Use **Utilities → Access** for low-health and low-durability alerts. Use **Settings** to configure alert sound, the health threshold, HUD placement, text spacing, panel tint and text color. Each instance stores these choices in config/void-client.properties. The Void JAR runs independently of Meteor.
 
 In the module library, hover or focus an item icon for its name. A colored underline marks enabled modules. The Utility group includes hotbar food and shield selection and a clear-waypoint action.
+
+Open **Settings → HUD layout** to move the readouts and utility icons independently. Drag inside a panel to move it, or drag its lower-right handle to resize it. Tab selects the other panel when panels overlap. Escape closes the editor. Both panels remember their position and scale in each instance. Under **Utilities → HUD**, toggle **Sprint display** to show the current sprint state.
