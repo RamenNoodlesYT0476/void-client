@@ -78,6 +78,11 @@ class Desktop : Form {
             ButtonAt("Enable / disable",422,330,143,"#393942",ToggleMod);
             ButtonAt("Play",572,330,110,"#aa234b",delegate{RunWorker("play");});
             ButtonAt("Install Void utilities",290,373,178,"#49385f",InstallUtilities);
+            ButtonAt("Browse mods",480,373,202,"#49385f",delegate{
+                if(Active==null){status.Text="Select or create an instance first.";return;}
+                using(var browser=new ModBrowser(Active,instances.SelectedItem.ToString()))browser.ShowDialog(this);
+                RefreshMods();
+            });
             LabelAt(status,"",22,421,660,48,10,"#b8c4d9");
             Shown+=delegate{try{Directory.CreateDirectory(Instances);var original=Path.Combine(Instances,"1.21.11");
                 if(File.Exists(PrefFile))prefs=Json.Deserialize<Preferences>(File.ReadAllText(PrefFile))??new Preferences();
@@ -108,7 +113,15 @@ class Desktop : Form {
     }
     public static void InstallUtilityPack(string dir){
         var folder=Path.Combine(dir,"mods");Directory.CreateDirectory(folder);
-        foreach(var file in Core){var target=Path.Combine(folder,file);if(File.Exists(target+".disabled")&&!File.Exists(target))File.Move(target+".disabled",target);if(!File.Exists(target))File.Copy(Path.Combine(Source,"payload",file),target);}
+                foreach(var file in Core){
+            var target=Path.Combine(folder,file);
+            var staged=target+"."+Guid.NewGuid().ToString("N")+".part";
+            try{
+                File.Copy(Path.Combine(Source,"payload",file),staged);
+                if(File.Exists(target))File.Replace(staged,target,null);else File.Move(staged,target);
+                if(File.Exists(target+".disabled"))File.Delete(target+".disabled");
+            }finally{if(File.Exists(staged))File.Delete(staged);}
+        }
     }
     public static string CreateInstance(string root,string name){
         name=name.Trim();if(name.Length==0||name.Length>70)throw new IOException("Choose an instance name between 1 and 70 characters.");
@@ -227,4 +240,6 @@ class Desktop : Form {
     }
 
 }
+
+
 

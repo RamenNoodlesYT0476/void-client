@@ -43,6 +43,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
     static String scope(MinecraftClient c){return "mark."+(c.getServer()!=null?c.getServer().getSavePath(net.minecraft.util.WorldSavePath.ROOT).toAbsolutePath():c.getCurrentServerEntry()!=null?c.getCurrentServerEntry().address:"local")+"."+dim(c);}
     public void onInitializeClient(){
         if(Files.exists(config))try(var in=Files.newInputStream(config)){cfg.load(in);}catch(Exception e){LoggerFactory.getLogger("VoidClient").warn("Could not load settings",e);}
+        Combat.register(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
         hud("heading","Direction",c->"Facing  "+c.player.getHorizontalFacing().asString());
         hud("fps","Frame rate",c->"FPS  "+c.getCurrentFps());
@@ -85,5 +86,6 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         for(int i=0;i<lines.size();i++)g.drawText(c.textRenderer,lines.get(i),x+6,y+17+i*11,0xFFE1E3EF,false);
     }
 }
+
 
 

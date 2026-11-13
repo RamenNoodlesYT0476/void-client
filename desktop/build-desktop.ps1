@@ -11,8 +11,9 @@ try {
 & $Python -m pip install --upgrade --no-compile --only-binary=:all: --platform win_amd64 --python-version 3.13 --implementation cp --abi cp313 --target "$engine/packages" minecraft-launcher-lib==8.0 requests==2.34.2 charset-normalizer==3.5.2 idna==3.20 urllib3==2.8.0 certifi==2026.10.23
 if ($LASTEXITCODE) {throw 'Could not install launcher dependencies'}
 Add-Content "$engine/python313._pth" 'packages'
-Copy-Item "$PSScriptRoot/launch.py" $engine -Force
-& "$env:WINDIR/Microsoft.NET/Framework64/v4.0.30319/csc.exe" /nologo /target:winexe /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll /r:System.Security.dll /r:System.Web.Extensions.dll "/out:$project\Void Setup.exe" "$PSScriptRoot\Desktop.cs"
+Copy-Item "$PSScriptRoot/catalog.py","$PSScriptRoot/launch.py" $engine -Force
+& "$env:WINDIR/Microsoft.NET/Framework64/v4.0.30319/csc.exe" /nologo /target:winexe /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll /r:System.Security.dll /r:System.Web.Extensions.dll "/out:$project\Void Setup.exe" "$PSScriptRoot\Desktop.cs" "$PSScriptRoot\ModBrowser.cs"
 if ($LASTEXITCODE) {throw 'Could not compile the desktop launcher'}
 Copy-Item "$project/Void Setup.exe" "$project/Void Launcher.exe" -Force
+
 
