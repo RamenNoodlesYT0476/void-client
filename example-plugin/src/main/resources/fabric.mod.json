@@ -1,0 +1,2 @@
+{"schemaVersion":1,"id":"voidcompass","version":"1.1.0","name":"Void Compass","environment":"client","entrypoints":{"voidclient":["dev.voidcompass.Compass"]},"depends":{"voidclient":"1.x","minecraft":"1.21.11"}}
+

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "voidclient",
+  "version": "1.1.0",
+  "name": "Void Client",
+  "description": "A modular cockpit for Minecraft.",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.voidclient.VoidClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "fabric-api": "*",
+    "minecraft": "1.21.11",
+    "java": ">=21"
+  }
+}
+
