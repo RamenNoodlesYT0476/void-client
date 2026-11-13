@@ -17,6 +17,12 @@ public final class AnchorSync {
     private enum Phase { CHARGE, WAIT_FOR_CHARGE, DETONATE, WAIT_FOR_REMOVAL }
     private static AnchorSync pending;
     private static boolean sendingUse;
+    private static String result;
+    private static Object resultWorld;
+    private static long resultUntil;
+    private static void finish(String message){
+        resultWorld=pending.level;result=message;resultUntil=System.nanoTime()+3_000_000_000L;pending=null;
+    }
     private final ClientLevel level;
     private final BlockPos pos;
     private final int originalSlot;
@@ -35,6 +41,14 @@ public final class AnchorSync {
 
     static void register(VoidClient registry) {
         Preferences.toggle(registry, "anchorSync", "Anchor Sync");
+        registry.hud("anchorState","Anchor Sync status",c->{
+            if(pending!=null)return "Anchor  "+switch(pending.phase){
+                case CHARGE -> "charging";case WAIT_FOR_CHARGE -> "waiting for charge";
+                case DETONATE -> "detonating";case WAIT_FOR_REMOVAL -> "waiting for removal";
+            };
+            if(c.level==resultWorld && System.nanoTime()<resultUntil)return "Anchor  "+result;
+            return VoidClient.switchOn("anchorSync")?"Anchor  ready":null;
+        });
         registry.action("anchorCycle", "Run Anchor Sync once", AnchorSync::start);
         net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
             var c = Minecraft.getInstance();
@@ -79,7 +93,7 @@ public final class AnchorSync {
     public static void blockUpdate(BlockPos pos, BlockState state) {
         var cycle = pending;
         if (cycle == null || !cycle.pos.equals(pos)) return;
-        if (!state.is(Blocks.RESPAWN_ANCHOR)) { pending = null; return; }
+        if (!state.is(Blocks.RESPAWN_ANCHOR)) { finish(cycle.phase==Phase.WAIT_FOR_REMOVAL && state.isAir()?"removal confirmed":"cancelled"); return; }
         if (cycle.phase == Phase.WAIT_FOR_CHARGE && state.getValue(RespawnAnchorBlock.CHARGE) > 0)
             cycle.phase = Phase.DETONATE;
     }
@@ -88,7 +102,7 @@ public final class AnchorSync {
         if (c.level != level || c.player == null || c.player != owner || c.gameMode == null || c.gui.screen() != null ||
             !c.player.isAlive() || c.player.isSpectator() || c.player.isShiftKeyDown() || c.player.isUsingItem() ||
             c.player.getInventory().getSelectedSlot() != originalSlot) { pending = null; return; }
-        if (c.player.tickCount >= deadline) { pending = null; SurvivalKit.message(c, "Anchor Sync timed out"); return; }
+        if (c.player.tickCount >= deadline) { finish("timed out"); SurvivalKit.message(c, "Anchor Sync timed out"); return; }
         if (phase == Phase.WAIT_FOR_CHARGE || phase == Phase.WAIT_FOR_REMOVAL) return;
         var hit = aim(c);
         if (hit == null || !hit.getBlockPos().equals(pos) || !level.getBlockState(pos).is(Blocks.RESPAWN_ANCHOR)) {

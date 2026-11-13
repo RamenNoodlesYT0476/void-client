@@ -53,3 +53,7 @@ Under **Utilities → HUD**, Crystal damage preview estimates blast damage in HP
 
 
 **Utilities → Combat → Anchor Sync** toggles synchronized right-clicks. Enable it in the menu, close the menu, then right-click a placed anchor. The colored underline shows when the toggle is on. **Run Anchor Sync once** also works independently as a one-shot shortcut. Bind **Run Anchor Sync** in Minecraft Controls, put glowstone and a non-glowstone item or empty slot on your hotbar, and keep aiming until detonation. The cycle restores the selected slot after each use. In dimensions where anchors set spawn it leaves them alone. In **Settings**, the timeout controls how long Void waits for a server update. **Utilities → HUD → Anchor charges** shows the current charge count.
+
+Press **] → Settings → HUD contents** to choose individual readouts and status-effect icons. **HUD layout** lets you move each panel or drag its corner to resize it. The effects panel follows Minecraft's icon visibility for each effect. **World/server preset** switches between shared settings and a dedicated copy for this world or server, including Void keybinds and HUD layout.
+
+The HUD can show personal totem pops since connecting, time since the last pop, your last death coordinates and dimension, and Anchor Sync progress. Enable **Tool break guard** in Utilities to stop mining at one point of tool durability. Hold sneak to override it.

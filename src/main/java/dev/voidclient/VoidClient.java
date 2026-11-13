@@ -34,7 +34,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         try(var out=Files.newOutputStream(temp)){cfg.store(out,"Void Client");}
         Files.move(temp,config,StandardCopyOption.REPLACE_EXISTING);
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "deathPoint","anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
     static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
     private void add(Module m){if(modules.stream().anyMatch(x->x.id.equals(m.id)))throw new IllegalArgumentException("Duplicate module "+m.id);modules.add(m);}
     public void hud(String id,String name,Function<MinecraftClient,String> f){add(new Module(id,name,f,null));}
@@ -48,6 +48,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         FieldUtilities.register(this);
         SurvivalKit.register(this);
         AnchorSync.register(this);
+        SessionTools.register(this);
         Preferences.register(this);
         ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
@@ -81,7 +82,10 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         for(var module:modules) if(module.id().startsWith("switch.") || module.id().equals("anchorCycle")){
             var bind=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.voidclient."+module.id(), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, category));
             shortcuts.put(bind,module);
+            Presets.keys.put(module.id(),bind);
         }
+        Presets.keys.put("open",key);
+        ClientTickEvents.START_CLIENT_TICK.register(Presets::tick);
         ClientTickEvents.END_CLIENT_TICK.register(c->{
             while(key.wasPressed() && c.player!=null)c.setScreen(new Console());
             shortcuts.forEach((bind,module)->{

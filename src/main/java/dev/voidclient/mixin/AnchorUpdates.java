@@ -20,4 +20,10 @@ abstract class AnchorUpdates {
     private void voidSectionUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
         if (AnchorSync.waiting()) packet.visitUpdates(AnchorSync::blockUpdate);
     }
+    @Inject(method="onEntityStatus", at=@At("TAIL"))
+    private void voidTotemPop(net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket packet, CallbackInfo ci){
+        var c=net.minecraft.client.MinecraftClient.getInstance();
+        if(c.player!=null && packet.getStatus()==35 && packet.getEntity(c.world)==c.player)
+            dev.voidclient.SessionTools.recordPop(c.getNetworkHandler());
+    }
 }

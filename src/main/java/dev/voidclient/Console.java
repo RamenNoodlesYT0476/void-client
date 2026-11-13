@@ -32,6 +32,20 @@ final class Console extends Screen {
             int gw=(w-18)/groups.length;
             for(int i=0;i<groups.length;i++){int id=i;button(x+9+i*gw,body,gw-2,(group==i?"› ":"")+groups[i],()->{group=id;page=0;refresh();});}
             var entries=Preferences.group(group);
+            if(group==2){
+                int bw=(w-18)/cols, capacity=cols*Math.max(1,(h-127)/21);
+                page=Math.clamp(page,0,Math.max(0,(entries.size()-1)/capacity));
+                for(int i=0;i<capacity && page*capacity+i<entries.size();i++){
+                    var m=entries.get(page*capacity+i);
+                    button(x+9+i%cols*bw,body+22+i/cols*21,bw-3,
+                        (VoidClient.enabled(m)?"[x] ":"[ ] ")+m.label(),()->{
+                            VoidClient.set("module."+m.id(),Boolean.toString(!VoidClient.enabled(m)));
+                            refresh();
+                        });
+                }
+                pager(entries.size(),capacity);
+                return;
+            }
             int across=Math.max(1,(w-18)/28),capacity=across*Math.max(1,(h-127)/25),count=entries.size();
             page=Math.max(0,Math.min(page,(count-1)/capacity));
             for(int i=0;i<capacity && page*capacity+i<count;i++){
@@ -50,6 +64,8 @@ final class Console extends Screen {
             String[][] controls={
                 {"accent","Menu accent","Neon red","Purple","Blue","Grey"},
                 {"anchor","HUD corner","Top left","Top right","Bottom left","Bottom right"},
+                {"contents","HUD contents","Choose"},
+                {"preset","World/server preset",Presets.label()},
                 {"position","HUD layout","Move / resize"},
                 {"hud.hidden","HUD","Visible","Hidden"},
                 {"hud.ink","HUD text","Grey","Menu accent"},
@@ -79,7 +95,9 @@ final class Console extends Screen {
                 int bw=(w-18)/cols;
                 button(x+9+(i%cols)*bw,body+(i/cols)*21,bw-3,
                     setting[1]+" / "+setting[2+VoidClient.number(setting[0],count)],
-                    ()->{if(setting[0].equals("position")){client.setScreen(new HudPosition(this));return;}
+                    ()->{if(setting[0].equals("contents")){tab=0;group=2;page=0;refresh();return;}
+                        if(setting[0].equals("preset")){Presets.toggle(client);refresh();return;}
+                        if(setting[0].equals("position")){client.setScreen(new HudPosition(this));return;}
                         if(setting[0].equals("anchor"))HudLayout.resetPositions();
                         Preferences.cycle(setting[0],count);refresh();});
             }

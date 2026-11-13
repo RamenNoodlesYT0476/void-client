@@ -20,6 +20,7 @@ final class ModuleIcons {
             case "switch.expThrow" -> Items.EXPERIENCE_BOTTLE;
             case "switch.lookDown" -> Items.ENDER_PEARL;
             case "switch.anchorSync" -> Items.RESPAWN_ANCHOR;
+            case "switch.breakGuard" -> Items.IRON_PICKAXE;
             case "anchorCycle" -> Items.FLINT_AND_STEEL;
             case "anchorCharges" -> Items.GLOWSTONE;
             case "switch.surround" -> Items.OBSIDIAN;

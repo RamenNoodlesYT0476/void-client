@@ -70,7 +70,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
 
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "deathPoint","anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
 
     static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
 
@@ -94,6 +94,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         FieldUtilities.register(this);
         SurvivalKit.register(this);
         AnchorSync.register(this);
+        SessionTools.register(this);
 
 
         Preferences.register(this);
@@ -161,9 +162,12 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
             var bind=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.voidclient."+module.id(), InputConstants.UNKNOWN.getValue(), category));
 
             shortcuts.put(bind,module);
+            Presets.keys.put(module.id(),bind);
 
         }
 
+        Presets.keys.put("open",key);
+        ClientTickEvents.START_CLIENT_TICK.register(Presets::tick);
         ClientTickEvents.END_CLIENT_TICK.register(c->{
 
             while(key.consumeClick() && c.player!=null)c.gui.setScreen(new Console());

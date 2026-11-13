@@ -6,7 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 
 final class HudLayout {
     enum Panel {
-        READOUTS("hud"), ICONS("icons");
+        READOUTS("hud"), ICONS("icons"), EFFECTS("effects");
         final String key;
         Panel(String key){this.key=key;}
     }
@@ -44,6 +44,7 @@ final class HudLayout {
         int ax=Math.max(0,screenW-w),ay=Math.max(0,screenH-h);
         int anchor=VoidClient.number("anchor",4);
         int x=anchor%2==1?ax-4:4,y=anchor>=2?ay-22:4;
+        if(panel==Panel.EFFECTS){x=4;y=ay-4;}
         if(parent!=null){
             x=parent.x();
             y=parent.y()+parent.height()+2;
@@ -85,7 +86,24 @@ final class HudLayout {
             for(int i=0;i<icons.size();i++)g.drawItem(ModuleIcons.item(icons.get(i).id()).getDefaultStack(),i*16,0);
             g.getMatrices().popMatrix();
         }
-        return new Frame[]{text,strip};
+        var sprites=new ArrayList<net.minecraft.util.Identifier>();
+        if(Boolean.parseBoolean(VoidClient.cfg.getProperty("module.statusEffects","true"))){
+            for(var effect:client.player.getStatusEffects())if(effect.shouldShowIcon())
+                sprites.add(net.minecraft.client.gui.hud.InGameHud.getEffectTexture(effect.getEffectType()));
+            sprites.sort(java.util.Comparator.comparing(Object::toString));
+        }
+        if(editing && sprites.isEmpty())
+            sprites.add(net.minecraft.client.gui.hud.InGameHud.getEffectTexture(net.minecraft.entity.effect.StatusEffects.SPEED));
+        int columns=Math.max(1,Math.min(8,sw/16));
+        Frame effects=frame(Panel.EFFECTS,sw,sh,Math.max(1,Math.min(columns,sprites.size()))*16,
+            Math.max(1,(sprites.size()+columns-1)/columns)*16,null);
+        if(!sprites.isEmpty()){
+            begin(g,effects);
+            for(int i=0;i<sprites.size();i++)
+                g.drawGuiTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED,sprites.get(i),i%columns*16,i/columns*16,15,15);
+            g.getMatrices().popMatrix();
+        }
+        return new Frame[]{text,strip,effects};
     }
 
     private static void begin(DrawContext g,Frame frame){

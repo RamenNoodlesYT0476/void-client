@@ -28,24 +28,26 @@ final class HudPosition extends Screen {
             g.fill(x,y,x+1,b,color);g.fill(r-1,y,r,b,color);
             g.fill(r-5,b-5,r,b,color);
         }
-        String label=selected==HudLayout.Panel.READOUTS?"Readouts":"Utility icons";
+        String label=switch(selected){case READOUTS -> "Readouts"; case ICONS -> "Utility icons"; case EFFECTS -> "Status effects";};
         g.drawCenteredTextWithShadow(textRenderer,label+"  "+HudLayout.value(selected.key+".scale",80,45,240)+"%",width/2,height-24,0xFFFFFFFF);
         g.drawCenteredTextWithShadow(textRenderer,"Drag to move • Drag corner to scale • Tab to select • Esc to finish",width/2,height-12,0xFFD3D6DB);
     }
 
     @Override public boolean mouseClicked(Click click,boolean twice){
         if(click.button()!=0 || frames==null)return false;
-        var other=selected==HudLayout.Panel.READOUTS?HudLayout.Panel.ICONS:HudLayout.Panel.READOUTS;
         if(!frames[selected.ordinal()].contains(click.x(),click.y())){
-            if(!frames[other.ordinal()].contains(click.x(),click.y()))return false;
-            selected=other;
+            var hit=java.util.Arrays.stream(HudLayout.Panel.values())
+                .filter(p->frames[p.ordinal()].contains(click.x(),click.y())).findFirst();
+            if(hit.isEmpty())return false;
+            selected=hit.get();
         }
         start=frames[selected.ordinal()];startX=click.x();startY=click.y();
         resize=startX>=start.x()+start.width()-6 && startY>=start.y()+start.height()-6;
         // Once editing either panel, keep the other one stationary.
-        var sibling=frames[1-selected.ordinal()];
-        HudLayout.move(selected==HudLayout.Panel.READOUTS?HudLayout.Panel.ICONS:HudLayout.Panel.READOUTS,
-            sibling.x(),sibling.y(),width-sibling.width(),height-sibling.height());
+        for(var panel:HudLayout.Panel.values())if(panel!=selected){
+            var sibling=frames[panel.ordinal()];
+            HudLayout.move(panel,sibling.x(),sibling.y(),width-sibling.width(),height-sibling.height());
+        }
         return true;
     }
 
@@ -74,7 +76,8 @@ final class HudPosition extends Screen {
 
     @Override public boolean keyPressed(net.minecraft.client.input.KeyInput key){
         if(key.key()==org.lwjgl.glfw.GLFW.GLFW_KEY_TAB && start==null){
-            selected=selected==HudLayout.Panel.READOUTS?HudLayout.Panel.ICONS:HudLayout.Panel.READOUTS;
+            var panels=HudLayout.Panel.values();
+            selected=panels[(selected.ordinal()+1)%panels.length];
             return true;
         }
         return super.keyPressed(key);

@@ -20,4 +20,10 @@ abstract class AnchorUpdates {
     private void voidSectionUpdate(ClientboundSectionBlocksUpdatePacket packet, CallbackInfo ci) {
         if (AnchorSync.waiting()) packet.runUpdates(AnchorSync::blockUpdate);
     }
+    @Inject(method="handleEntityEvent", at=@At("TAIL"))
+    private void voidTotemPop(net.minecraft.network.protocol.game.ClientboundEntityEventPacket packet, CallbackInfo ci){
+        var c=net.minecraft.client.Minecraft.getInstance();
+        if(c.player!=null && packet.getEventId()==35 && packet.getEntity(c.level)==c.player)
+            dev.voidclient.SessionTools.recordPop(c.getConnection());
+    }
 }

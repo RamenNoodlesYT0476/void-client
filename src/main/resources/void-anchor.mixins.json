@@ -3,7 +3,7 @@
   "package": "dev.voidclient.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "AnchorUpdates"
+    "AnchorUpdates", "MiningGuard"
   ],
   "injectors": {
     "defaultRequire": 1
