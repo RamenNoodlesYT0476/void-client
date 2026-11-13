@@ -1,0 +1,17 @@
+{
+  "name": "Void",
+  "widgets": "Fusion",
+  "colors": {
+    "Window": "#15141b", "WindowText": "#eeeaf5", "Base": "#100f15",
+    "AlternateBase": "#22212b", "Text": "#eeeaf5", "Button": "#35323e",
+    "ButtonText": "#f3eef8", "BrightText": "#ff476a", "Highlight": "#633f85",
+    "HighlightedText": "#ffffff", "Link": "#8bbafa", "ToolTipBase": "#292733",
+    "ToolTipText": "#eeeaf5", "fadeAmount": 0.4, "fadeColor": "#15141b"
+  },
+  "logColors": {
+    "Message": "#dedbe7", "Launcher": "#8bbafa", "Debug": "#ba9ae4",
+    "Warning": "#ffbf88", "Error": "#ff6687", "Fatal": "#ffffff",
+    "FatalHighlight": "#982341"
+  }
+}
+
