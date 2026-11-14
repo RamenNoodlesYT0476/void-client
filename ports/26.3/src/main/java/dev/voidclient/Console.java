@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 final class Console extends Screen {
     int group=0;
-    final String[] groups={"Combat","Utility","HUD","Access","Visual"};
+    final String[] groups={"Combat","Utility","HUD","Access","Visual","SMP"};
     int tab=0,page=0,offset=0,serial=0; String query="",status="";
     List<Catalog.Hit> hits=List.of(); Catalog.Hit selected; Catalog.Release file;
     EditBox field; boolean busy;

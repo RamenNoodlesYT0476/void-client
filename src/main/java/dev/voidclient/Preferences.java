@@ -23,6 +23,7 @@ final class Preferences {
     private static int category(VoidClient.Module module) {
         if(module.id().startsWith("switch.visual") || module.id().startsWith("visual"))return 4;
         if (module.hud() != null) return 2;
+        if(module.id().startsWith("smp"))return 5;
         return switch (module.id()) {
             case "switch.anchorSync", "anchorCycle", "switch.surround", "switch.holeRadar", "switch.armor", "switch.mend", "switch.gap", "switch.autoWeapon", "switch.sword", "switch.crystal", "switch.totem", "switch.blastBuffer" -> 0;
             case "switch.lowHealth", "switch.durabilityAlert", "switch.crystalWarning", "switch.totemReserve" -> 3;

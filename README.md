@@ -63,3 +63,7 @@ Under **] → Utilities → Visual**, enable player, practice bot or dropped-ite
 X-ray marks nearby selected blocks through terrain. Its starting list is diamond ore, deepslate diamond ore, and ancient debris. Aim at a block and choose **Add / remove targeted X-ray block** to edit this world's list. Block scans use loaded terrain and display the nearest 64 matches. Crystal-base markers indicate obsidian or bedrock with air above. Logout spots mark a recently observed player's last known position when they leave the player list, and expire after ten minutes or on rejoin.
 
 **Settings** controls marker range, block scan radius, and player outline color. **HUD contents** includes optional chunk/local coordinates and multiplayer ping.
+
+**] → Utilities → SMP** offers three persistent landmarks per world/server and dimension. Cycle between Base, Build and Meetup, save the selected slot at your feet, and use its HUD row for horizontal distance, compass bearing and target Y. Draft your current position or the selected landmark in chat, review it, and press Enter to share.
+
+Select a held material with the supply tracker to count that item across the hotbar, main inventory and offhand. Use the tracker with an empty main hand to clear it. **Settings → HUD contents** controls the landmark and supply rows individually.

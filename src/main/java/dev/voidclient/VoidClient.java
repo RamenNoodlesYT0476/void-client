@@ -50,6 +50,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         AnchorSync.register(this);
         SessionTools.register(this);
         VisualTools.register(this);
+        SmpTools.register(this);
         Preferences.register(this);
         ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));

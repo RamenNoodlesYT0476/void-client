@@ -46,6 +46,7 @@ final class Preferences {
 
         if(module.id().startsWith("switch.visual") || module.id().startsWith("visual"))return 4;
         if (module.hud() != null) return 2;
+        if(module.id().startsWith("smp"))return 5;
 
         return switch (module.id()) {
 
