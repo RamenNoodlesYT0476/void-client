@@ -70,9 +70,9 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
 
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "deathPoint","anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "chunkPosition","connectionPing","deathPoint","anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
 
-    static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
+    static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty(id.startsWith("visual")?VisualTools.key(id):"switch."+id,"false"));}
 
     private void add(Module m){if(modules.stream().anyMatch(x->x.id.equals(m.id)))throw new IllegalArgumentException("Duplicate module "+m.id);modules.add(m);}
 
@@ -95,6 +95,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         SurvivalKit.register(this);
         AnchorSync.register(this);
         SessionTools.register(this);
+        VisualTools.register(this);
 
 
         Preferences.register(this);
@@ -199,6 +200,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
 
         HudLayout.draw(g,false);
         SurvivalKit.drawRadar(g);
+        VisualTools.draw(c,g);
 
     }
 

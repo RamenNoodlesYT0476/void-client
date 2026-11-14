@@ -9,7 +9,7 @@ final class Presets {
     static final Map<String,KeyBinding> keys=new LinkedHashMap<>();
     private static String location="", active="";
     private static boolean settingsKey(String k){
-        return !k.startsWith("preset.") && !k.startsWith("mark.");
+        return !k.startsWith("preset.") && !k.startsWith("mark.") && !k.startsWith("visualWorld.");
     }
     private static void snapshot(String prefix){
         var cfg=VoidClient.cfg;

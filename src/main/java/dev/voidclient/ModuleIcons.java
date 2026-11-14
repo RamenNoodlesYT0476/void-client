@@ -20,6 +20,13 @@ final class ModuleIcons {
             case "switch.expThrow" -> Items.EXPERIENCE_BOTTLE;
             case "switch.lookDown" -> Items.ENDER_PEARL;
             case "switch.anchorSync" -> Items.RESPAWN_ANCHOR;
+            case "switch.visualPlayers" -> Items.SPYGLASS;
+            case "switch.visualBots", "visualBot" -> Items.ARMOR_STAND;
+            case "switch.visualItems" -> Items.BUNDLE;
+            case "switch.visualLogout" -> Items.OAK_DOOR;
+            case "switch.visualXray" -> Items.DIAMOND_ORE;
+            case "switch.visualBases" -> Items.END_CRYSTAL;
+            case "visualBlock" -> Items.DIAMOND_PICKAXE;
             case "switch.breakGuard" -> Items.IRON_PICKAXE;
             case "anchorCycle" -> Items.FLINT_AND_STEEL;
             case "anchorCharges" -> Items.GLOWSTONE;

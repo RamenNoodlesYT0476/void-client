@@ -34,8 +34,8 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         try(var out=Files.newOutputStream(temp)){cfg.store(out,"Void Client");}
         Files.move(temp,config,StandardCopyOption.REPLACE_EXISTING);
     }catch(IOException e){LoggerFactory.getLogger("VoidClient").warn("Could not save settings",e);}}
-    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "deathPoint","anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
-    static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty("switch."+id,"false"));}
+    static boolean enabled(Module m){return Boolean.parseBoolean(cfg.getProperty("module."+m.id,switch(m.id){case "chunkPosition","connectionPing","deathPoint","anchorCharges","damagePreview","packSpace","blockLight" -> "false"; default -> "true";}));}
+    static boolean switchOn(String id){return Boolean.parseBoolean(cfg.getProperty(id.startsWith("visual")?VisualTools.key(id):"switch."+id,"false"));}
     private void add(Module m){if(modules.stream().anyMatch(x->x.id.equals(m.id)))throw new IllegalArgumentException("Duplicate module "+m.id);modules.add(m);}
     public void hud(String id,String name,Function<MinecraftClient,String> f){add(new Module(id,name,f,null));}
     public void action(String id,String name,Consumer<MinecraftClient> f){add(new Module(id,name,null,f));}
@@ -49,6 +49,7 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
         SurvivalKit.register(this);
         AnchorSync.register(this);
         SessionTools.register(this);
+        VisualTools.register(this);
         Preferences.register(this);
         ModuleIcons.registerActions(this);
         hud("xyz","Coordinates",c->"XYZ  "+pos(c));
@@ -103,5 +104,6 @@ public class VoidClient implements ClientModInitializer, VoidPlugin.Registry {
             || c.currentScreen instanceof Console || c.currentScreen instanceof HudPosition || number("hud.hidden",2)==1)return;
         HudLayout.draw(g,false);
         SurvivalKit.drawRadar(g);
+        VisualTools.draw(c,g);
     }
 }

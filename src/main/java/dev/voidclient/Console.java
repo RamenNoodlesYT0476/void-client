@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 final class Console extends Screen {
     int group=0;
-    final String[] groups={"Combat","Utility","HUD","Access"};
+    final String[] groups={"Combat","Utility","HUD","Access","Visual"};
     int tab=0,page=0,offset=0,serial=0; String query="",status="";
     List<Catalog.Hit> hits=List.of(); Catalog.Hit selected; Catalog.Release file;
     TextFieldWidget field; boolean busy;
@@ -71,6 +71,9 @@ final class Console extends Screen {
                 {"hud.ink","HUD text","Grey","Menu accent"},
                 {"hud.tint","Panel tint","Clear","9%","19%"},
                 {"hud.spacing","Row spacing","Compact","Normal","Wide"},
+                {"visual.range","ESP / logout range","24 blocks","48 blocks","72 blocks","96 blocks"},
+                {"visual.color","Player / bot outline","Red","Purple","Blue","Grey"},
+                {"visual.scan","Block scan radius","4 blocks","6 blocks","8 blocks","10 blocks"},
                 {"combat.range","Attack range","2 blocks","2.5 blocks","3 blocks"},
                 {"combat.weapon","Kill Aura weapon","Swords","Any"},
                 {"combat.cooldown","Attack cooldown","95%","85%","75%"},

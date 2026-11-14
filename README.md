@@ -57,3 +57,9 @@ Under **Utilities → HUD**, Crystal damage preview estimates blast damage in HP
 Press **] → Settings → HUD contents** to choose individual readouts and status-effect icons. **HUD layout** lets you move each panel or drag its corner to resize it. The effects panel follows Minecraft's icon visibility for each effect. **World/server preset** switches between shared settings and a dedicated copy for this world or server, including Void keybinds and HUD layout.
 
 The HUD can show personal totem pops since connecting, time since the last pop, your last death coordinates and dimension, and Anchor Sync progress. Enable **Tool break guard** in Utilities to stop mining at one point of tool durability. Hold sneak to override it.
+
+Under **] → Utilities → Visual**, enable player, practice bot or dropped-item ESP, logout spots, X-ray, or exposed crystal-base markers independently for each world or server. ESP draws boxes and labels over loaded entities. TheobaldTheBot is recognized automatically. Aim at another practice player and use **Mark / unmark targeted practice bot** to classify it.
+
+X-ray marks nearby selected blocks through terrain. Its starting list is diamond ore, deepslate diamond ore, and ancient debris. Aim at a block and choose **Add / remove targeted X-ray block** to edit this world's list. Block scans use loaded terrain and display the nearest 64 matches. Crystal-base markers indicate obsidian or bedrock with air above. Logout spots mark a recently observed player's last known position when they leave the player list, and expire after ten minutes or on rejoin.
+
+**Settings** controls marker range, block scan radius, and player outline color. **HUD contents** includes optional chunk/local coordinates and multiplayer ping.

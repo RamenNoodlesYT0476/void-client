@@ -44,6 +44,7 @@ final class Preferences {
 
     private static int category(VoidClient.Module module) {
 
+        if(module.id().startsWith("switch.visual") || module.id().startsWith("visual"))return 4;
         if (module.hud() != null) return 2;
 
         return switch (module.id()) {
